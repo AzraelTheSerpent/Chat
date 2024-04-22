@@ -23,7 +23,7 @@ class ServerObject
         try
         {
             Listener.Start();
-            Console.WriteLine("Сервер запущен. Ожидание подключений...");
+            Console.WriteLine("Server is running. Expect connections...");
 
             while (true)
             {
@@ -169,7 +169,7 @@ class ClientObject
         try
         {
             UserName = await Reader.ReadLineAsync();
-            string? message = $"{UserName} вошел в чат";
+            string? message = $"{UserName} logged on to the chat";
             
             Print(message);
             await _server.BroadcastMessageAsync(message, Id);
@@ -190,7 +190,7 @@ class ClientObject
                 }
                 catch
                 {
-                    message = $"{UserName} покинул чат";
+                    message = $"{UserName} left the chat";
 
                     Print(message);
 

@@ -10,7 +10,7 @@ const int port = 8888;
 TcpClient client = new();
 StreamReader? reader = null;
 StreamWriter? writer = null;
-string? userName = null;
+string? userName;
 
 try
 {
@@ -18,13 +18,14 @@ try
     
     reader = new StreamReader(client.GetStream());
     writer = new StreamWriter(client.GetStream());
+
     if (reader is null || writer is null) return;
     
     do
-    {
+    {   
+        Console.Clear();
         Console.Write("Enter your nickname: ");
         userName = Console.ReadLine();
-        Console.Clear();
     } while (string.IsNullOrEmpty(userName) || string.IsNullOrWhiteSpace(userName) || userName.Equals("Admin"));
     
 
@@ -37,23 +38,33 @@ catch (Exception ex)
 {
     Console.WriteLine(ex.Message);
 }
-client.Close();
-writer?.Close();
-reader?.Close();
-    
+finally
+{
+    client.Close();
+    writer?.Close();
+    reader?.Close();
+}
+
 async Task SendMassageAsync(StreamWriter writer)
 {
     await writer.WriteLineAsync(userName);
     await writer.FlushAsync();
 
     Console.Clear();
-    Console.WriteLine(new String('#', Console.WindowWidth));
+    Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {userName}");
     
     while (true)
     {
         string? message = Console.ReadLine();
 
-        if (string.IsNullOrEmpty(message)) continue;
+        if (string.IsNullOrEmpty(message) || string.IsNullOrWhiteSpace(message)) 
+        {
+            Console.SetCursorPosition(0, Console.CursorTop - 1);
+            continue;
+        }
+
+        Console.SetCursorPosition(0, Console.CursorTop - 1);
+        Console.WriteLine($"You: {message}");
 
         await writer.WriteLineAsync(message);
         await writer.FlushAsync();
