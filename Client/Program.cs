@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
-string host = "127.0.0.1";
-int port = 8888;
+const string host = "127.0.0.1";
+const int port = 8888;
 
 TcpClient client = new();
 StreamReader? reader = null;
@@ -19,8 +20,13 @@ try
     writer = new StreamWriter(client.GetStream());
     if (reader is null || writer is null) return;
     
-    Console.Write("Ведите свое имя: ");
-    userName = Console.ReadLine();
+    do
+    {
+        Console.Write("Enter your nickname: ");
+        userName = Console.ReadLine();
+        Console.Clear();
+    } while (string.IsNullOrEmpty(userName) || string.IsNullOrWhiteSpace(userName) || userName.Equals("Admin"));
+    
 
     Task ReceiveMsg = ReceiveMessageAsync(reader);
     Task SendMsg = SendMassageAsync(writer);
@@ -65,11 +71,46 @@ async Task ReceiveMessageAsync(StreamReader reader)
             string? message = await reader.ReadLineAsync();
 
             if (string.IsNullOrEmpty(message)) continue;
+
+            if (message[0] == '/')
+                CommandHandling(message);
+
             Console.WriteLine(message);
         }
-        catch
+        catch (Exception ex)
         {
-            break;
+            Console.WriteLine(ex.Message);
         }
     }
+}
+
+void CommandHandling(string message)
+{
+    switch (message)
+    {
+        case "/stop":
+            Console.WriteLine("Server was stopped");
+            Exit(0);
+            break;
+        case "/kick":
+            Console.WriteLine("You've been kicked by an admin");
+            Exit(0);
+            break;
+    }
+}
+
+void Exit(int exitCode)
+{
+    client.Close();
+    writer?.Close();
+    reader?.Close();
+
+    Console.WriteLine("The app will close in: ");
+    for (int i = 5; i != 0; i--)
+    {
+        Console.Write($"{i}...\t");
+        Thread.Sleep(1000);
+    }
+
+    Environment.Exit(exitCode);
 }
