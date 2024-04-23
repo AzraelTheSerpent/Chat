@@ -103,6 +103,8 @@ internal class Program
         }
     }
 
+    //TODO: GetCommands
+
     private static void CommandHandling(string message)
     {
         switch (message)

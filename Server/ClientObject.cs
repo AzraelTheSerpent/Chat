@@ -29,6 +29,7 @@ class ClientObject
     {
         try
         {
+            //TODO: write commands
             UserName = await Reader.ReadLineAsync();
             string? message = $"{UserName} join to chat";
             
