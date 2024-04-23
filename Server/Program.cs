@@ -6,12 +6,20 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
+namespace Chat;
 
-ServerObject server = new();
-Task listen = server.ListenAsync();
-Task manage = server.ManageAsync();
-
-Task.WaitAny(listen, manage);
+class Program
+{
+    static void Main(string[] args)
+    {
+        ServerObject server = new();
+        
+        Task listen = server.ListenAsync();
+        Task manage = server.ManageAsync();
+        
+        Task.WaitAny(listen, manage);
+    }
+}
 
 class ServerObject
 {
@@ -53,7 +61,7 @@ class ServerObject
                 string? command = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(command)) continue;
-
+                //TODO: enum commands
                 switch (command)
                 {
                     case "/msg":
@@ -92,9 +100,12 @@ class ServerObject
 
     protected internal async Task BroadcastMessageAsync(string message, string id)
     {
+        //TODO: recall
+
         foreach (var client in clients)
             if (client.Id != id)
             {
+                //TODO: WriteAndFlushAsync
                 await client.Writer.WriteLineAsync(message);
                 await client.Writer.FlushAsync();
             }
@@ -169,7 +180,7 @@ class ClientObject
         try
         {
             UserName = await Reader.ReadLineAsync();
-            string? message = $"{UserName} logged on to the chat";
+            string? message = $"{UserName} join to chat";
             
             Print(message);
             await _server.BroadcastMessageAsync(message, Id);
