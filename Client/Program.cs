@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -8,36 +9,37 @@ namespace Chat;
 
 internal class Program
 {
-    private static readonly TcpClient client = new();
-    private static StreamReader? reader = null;
-    private static StreamWriter? writer = null;
+    private static readonly TcpClient _client = new();
+    private static StreamReader? _reader = null;
+    private static StreamWriter? _writer = null;
+    private static string? userName;
+    private static string[]? commands;
 
-    static string? userName;
-
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         string host = "127.0.0.1";
         int port = 8888;
 
         try
         {
-            client.Connect(host, port);
-            
-            reader = new StreamReader(client.GetStream());
-            writer = new StreamWriter(client.GetStream());
+            _client.Connect(host, port);
 
-            if (reader is null || writer is null) return;
-            
+            _reader = new StreamReader(_client.GetStream());
+            _writer = new StreamWriter(_client.GetStream());
+
+            if (_reader is null || _writer is null) return;
+
+            commands = await ReceiveCommands(_reader);
+
             do
-            {   
+            {
                 Console.Clear();
                 Console.Write("Enter your nickname: ");
                 userName = Console.ReadLine();
             } while (string.IsNullOrEmpty(userName) || string.IsNullOrWhiteSpace(userName) || userName.Equals("Admin"));
-            
 
-            Task ReceiveMsg = ReceiveMessageAsync(reader);
-            Task SendMsg = SendMassageAsync(writer);
+            Task ReceiveMsg = ReceiveMessageAsync(_reader);
+            Task SendMsg = SendMassageAsync(_writer);
 
             Task.WaitAny(ReceiveMsg, SendMsg);
         }
@@ -47,45 +49,49 @@ internal class Program
         }
         finally
         {
-            client.Close();
-            writer?.Close();
-            reader?.Close();
+            Exit(0);
         }
     }
 
     private static async Task SendMassageAsync(StreamWriter writer)
     {
-        await writer.WriteLineAsync(userName);
-        await writer.FlushAsync();
-
-        Console.Clear();
-        Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {userName}");
-        
-        while (true)
+        try
         {
-            string? message = Console.ReadLine();
+            await writer.WriteLineAndFlushAsync(userName);
 
-            if (string.IsNullOrEmpty(message) || string.IsNullOrWhiteSpace(message)) 
-            {
-                Console.SetCursorPosition(0, Console.CursorTop - 1);
-                continue;
-            }
-
-            Console.SetCursorPosition(0, Console.CursorTop - 1);
-            Console.WriteLine($"You: {message}");
-
-            await writer.WriteLineAsync(message);
-            await writer.FlushAsync();
+            Console.Clear();
+            Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {userName}");
             
-            if (message.Equals("/exit")) break;
+            while (true)
+            {
+                string? message = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(message) || string.IsNullOrWhiteSpace(message))
+                {
+                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                    continue;
+                }
+
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.WriteLine($"You: {message}");
+
+                await writer.WriteLineAndFlushAsync(message);
+
+                if (message[0] == '/')
+                    CommandHandling(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 
     private static async Task ReceiveMessageAsync(StreamReader reader)
     {
-        while (true)
+        try
         {
-            try
+            while (true)
             {
                 string? message = await reader.ReadLineAsync();
 
@@ -96,35 +102,55 @@ internal class Program
 
                 Console.WriteLine(message);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
         }
     }
 
-    //TODO: GetCommands
+    private static async Task<string[]?> ReceiveCommands(StreamReader? reader)
+    {
+        if (reader is null) return null;
+        string response = await reader.ReadLineAsync() ?? throw new Exception("Failed to receive data");
+        
+        string? buffer = null;
+        List<string?> tmpCommands = [];
+        foreach (var chr in response)
+        {
+            if (chr == '\\')
+            {
+                tmpCommands.Add(buffer);
+                buffer = null;
+            }
+            else
+                buffer += chr;
+        }
+        
+        return [.. tmpCommands];
+    }
 
     private static void CommandHandling(string message)
     {
-        switch (message)
+        if (commands is null) return;
+
+        if (message.Equals(commands[0]))
         {
-            case "/stop":
-                Console.WriteLine("Server was stopped");
-                Exit(0);
-                break;
-            case "/kick":
-                Console.WriteLine("You've been kicked by an admin");
-                Exit(0);
-                break;
+            Console.WriteLine("Server was stopped");
+            Exit(0);
         }
+        if (message.Equals(commands[1]))
+        {
+            Console.WriteLine("You've been kicked by an admin");
+            Exit(0);
+        }
+        if (message.Equals(commands[3]))
+            Exit(0);
     }
 
     private static void Exit(int exitCode)
     {
-        client.Close();
-        writer?.Close();
-        reader?.Close();
 
         Console.WriteLine("The app will close in: ");
         for (int i = 5; i != 0; i--)
@@ -132,6 +158,10 @@ internal class Program
             Console.Write($"{i}...\t");
             Thread.Sleep(1000);
         }
+        
+        _writer?.Close();
+        _reader?.Close();
+        _client.Close();
 
         Environment.Exit(exitCode);
     }

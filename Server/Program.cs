@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Chat;
+﻿namespace Chat;
 
 class Program
 {

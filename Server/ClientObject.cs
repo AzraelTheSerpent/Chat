@@ -1,8 +1,3 @@
-using System;
-using System.IO;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-
 namespace Chat;
 
 class ClientObject
@@ -29,13 +24,14 @@ class ClientObject
     {
         try
         {
-            //TODO: write commands
+            await SendCommands(_server.commands);
+
             UserName = await Reader.ReadLineAsync();
             string? message = $"{UserName} join to chat";
-            
+
             Print(message);
             await _server.BroadcastMessageAsync(message, Id);
-
+            
             while (true)
             {
                 try
@@ -43,7 +39,7 @@ class ClientObject
                     message = await Reader.ReadLineAsync();
                     
                     if (message == null) continue;
-                    if (message.Equals("/exit")) throw new Exception();
+                    if (message.Equals(_server.commands[3])) throw new Exception();
                     
                     Print(message);
                     
@@ -71,7 +67,21 @@ class ClientObject
         }
     }
 
-    private void Print(string message) => Console.WriteLine($"User: {UserName}\nId: {Id}\nMessage: {message}\n");
+    private async Task SendCommands(string[] commands)
+    {
+        string? data = null;
+        foreach (var command in commands)
+        {
+            data += command;
+            data += '\\';
+        }
+
+        await Writer.WriteLineAndFlushAsync(data);
+    }
+
+    private void Print(string message) => Console.WriteLine($"User: {UserName}\n" +
+                                                            $"Id: {Id}\n" +
+                                                            $"Message: {message}\n");
 
     protected internal void Close()
     {

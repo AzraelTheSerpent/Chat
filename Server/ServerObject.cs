@@ -1,23 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-
 namespace Chat;
 
 class ServerObject
 {
     protected TcpListener listener = new(IPAddress.Any, 8888);
-    protected List<ClientObject> clients = new();
-    protected Dictionary<int, string> commands = new()
-    {
-        { 0, "/stop" },
-        { 1, "/kick" },
-        { 2, "/msg" },
-        { 3, "/exit" }
-    };
+    protected List<ClientObject> clients = [];
+    protected internal string[] commands =
+    [
+        "/stop" ,
+        "/kick" ,
+        "/msg" ,
+        "/exit" 
+    ];
 
     protected internal async Task ListenAsync()
     {
@@ -64,7 +57,7 @@ class ServerObject
 
                     message = $"Admin: {message}";
                     await BroadcastMessageAsync(message);
-                    break;
+                    continue;
                 }
                 if (command.Equals(commands[1]))
                 {
@@ -74,7 +67,7 @@ class ServerObject
                     if (string.IsNullOrEmpty(id)) continue;
 
                     await KickClient(id);
-                    break;
+                    continue;
                 }
                 if (command.Equals(commands[0]))
                     throw new Exception("Server was stopped");
@@ -95,26 +88,20 @@ class ServerObject
         //TODO: recall
         foreach (var client in clients)
             if (client.Id != id)
-                await WriteLineAndFlushAsync(client, message);
-    }
-
-    private async Task WriteLineAndFlushAsync(ClientObject client, string message)
-    {
-        await client.Writer.WriteLineAsync(message);
-        await client.Writer.FlushAsync();
+                await client.WriteLineAndFlushAsync(message);
     }
 
     protected internal async Task BroadcastMessageAsync(string message)
     {
         foreach (var client in clients)
-            await WriteLineAndFlushAsync(client, message);
+            await client.WriteLineAndFlushAsync(message);
     }
 
     private async Task Disconnect()
     {
         foreach(ClientObject client in clients)
         {
-            await WriteLineAndFlushAsync(client, commands[0]);
+            await client.WriteLineAndFlushAsync(commands[0]);
             client.Close();
         }  
         listener.Stop();
@@ -136,9 +123,9 @@ class ServerObject
     protected internal async Task KickClient(string id)
     {
         ClientObject? client = clients.FirstOrDefault(c => c.Id == id);
-        if (client == null) return;
+        if (client is null) return;
 
-        await WriteLineAndFlushAsync(client ,commands[1]);
+        await client.WriteLineAndFlushAsync(commands[1]);
 
         RemoveConnection(client);
     }
