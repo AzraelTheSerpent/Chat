@@ -88,20 +88,20 @@ class ServerObject
         //TODO: recall
         foreach (var client in clients)
             if (client.Id != id)
-                await client.WriteLineAndFlushAsync(message);
+                await client.Writer.WriteLineAndFlushAsync(message);
     }
 
     protected internal async Task BroadcastMessageAsync(string message)
     {
         foreach (var client in clients)
-            await client.WriteLineAndFlushAsync(message);
+            await client.Writer.WriteLineAndFlushAsync(message);
     }
 
     private async Task Disconnect()
     {
         foreach(ClientObject client in clients)
         {
-            await client.WriteLineAndFlushAsync(commands[0]);
+            await client.Writer.WriteLineAndFlushAsync(commands[0]);
             client.Close();
         }  
         listener.Stop();
@@ -125,7 +125,7 @@ class ServerObject
         ClientObject? client = clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
-        await client.WriteLineAndFlushAsync(commands[1]);
+        await client.Writer.WriteLineAndFlushAsync(commands[1]);
 
         RemoveConnection(client);
     }
