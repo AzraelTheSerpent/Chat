@@ -8,9 +8,12 @@ class ClientObject
     protected internal StreamReader Reader {get;}
     private TcpClient _client;
     private ServerObject _server;
+    private bool clientIsLive;
 
     public ClientObject(TcpClient client, ServerObject server)
     {
+        clientIsLive = true;
+
         _client = client;
         _server = server;
 
@@ -32,7 +35,7 @@ class ClientObject
             Print(message);
             await _server.BroadcastMessageAsync(message, Id);
             
-            while (true)
+            while (clientIsLive)
             {
                 try
                 {
@@ -85,6 +88,7 @@ class ClientObject
 
     protected internal void Close()
     {
+        clientIsLive = false;
         Writer.Close();
         Reader.Close();
         _client.Close();

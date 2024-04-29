@@ -85,16 +85,40 @@ class ServerObject
 
     protected internal async Task BroadcastMessageAsync(string message, string id)
     {
-        //TODO: recall
+        /*
+        TODO: fix bug.
+        When one client crashes,
+        all clients continue to work 
+        for a while and then disconnect 
+        with a Broken pipe error.
+        */
         foreach (var client in clients)
-            if (client.Id != id)
-                await client.Writer.WriteLineAndFlushAsync(message);
+            try
+            {
+                if (client.Id != id)
+                    await client.Writer.WriteLineAndFlushAsync(message);
+            }
+            catch
+            {
+                var userName = client.UserName;
+                RemoveConnection(client);
+                await BroadcastMessageAsync($"{userName} left the chat");
+            }
     }
 
     protected internal async Task BroadcastMessageAsync(string message)
     {
         foreach (var client in clients)
-            await client.Writer.WriteLineAndFlushAsync(message);
+            try
+            {
+                await client.Writer.WriteLineAndFlushAsync(message);
+            }
+            catch
+            {
+                var userName = client.UserName;
+                RemoveConnection(client);
+                await BroadcastMessageAsync($"{userName} left the chat");
+            }
     }
 
     private async Task Disconnect()
@@ -111,7 +135,7 @@ class ServerObject
     {
         ClientObject? client = clients.FirstOrDefault(c => c.Id == id);
 
-        if (client != null) 
+        if (client is not null) 
             clients.Remove(client);
         client?.Close();
     }
