@@ -17,11 +17,25 @@ internal class Program
 
     public static async Task Main(string[] args)
     {
-        string host = "127.0.0.1";
+        string? host = "";
         int port = 8888;
 
         try
         {
+            do
+            {
+                Console.Write("Enter the host IP: ");
+                host = Console.ReadLine();
+                Console.Clear();
+            } while (string.IsNullOrEmpty(host) || string.IsNullOrWhiteSpace(host));
+
+            do
+            {
+                Console.Clear();
+                Console.Write("Enter your nickname: ");
+                userName = Console.ReadLine();
+            } while (string.IsNullOrEmpty(userName) || string.IsNullOrWhiteSpace(userName) || userName.Equals("Admin"));
+
             _client.Connect(host, port);
 
             _reader = new StreamReader(_client.GetStream());
@@ -30,13 +44,6 @@ internal class Program
             if (_reader is null || _writer is null) return;
 
             commands = await ReceiveCommands(_reader);
-
-            do
-            {
-                Console.Clear();
-                Console.Write("Enter your nickname: ");
-                userName = Console.ReadLine();
-            } while (string.IsNullOrEmpty(userName) || string.IsNullOrWhiteSpace(userName) || userName.Equals("Admin"));
 
             Task ReceiveMsg = ReceiveMessageAsync(_reader);
             Task SendMsg = SendMassageAsync(_writer);
