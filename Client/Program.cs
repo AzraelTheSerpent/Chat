@@ -17,7 +17,7 @@ internal class Program
 
     public static async Task Main(string[] args)
     {
-        string? host = "";
+        string? host;
         int port = 8888;
 
         try
