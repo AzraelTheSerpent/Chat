@@ -3,7 +3,7 @@ namespace Chat;
 class ClientObject
 {
     internal string Id {get;} = Guid.NewGuid().ToString();
-    internal string? UserName;
+    internal string? Nickname;
     internal StreamWriter Writer {get;}
     internal StreamReader Reader {get;}
     private readonly TcpClient _client;
@@ -29,8 +29,8 @@ class ClientObject
         {
             await SendCommands(_server._commands);
 
-            UserName = await Reader.ReadLineAsync();
-            string? message = $"{UserName} join to chat";
+            Nickname = await Reader.ReadLineAsync();
+            string? message = $"{Nickname} join to chat";
 
             Print(message);
             await _server.BroadcastMessageAsync(message, Id);
@@ -46,12 +46,12 @@ class ClientObject
                     
                     Print(message);
                     
-                    message = $"{UserName}: {message}";
+                    message = $"{Nickname}: {message}";
                     await _server.BroadcastMessageAsync(message, Id);
                 }
                 catch
                 {
-                    message = $"{UserName} left the chat";
+                    message = $"{Nickname} left the chat";
 
                     Print(message);
 
@@ -82,7 +82,7 @@ class ClientObject
         await Writer.WriteLineAndFlushAsync(data);
     }
 
-    private void Print(string message) => Console.WriteLine($"User: {UserName}\n" +
+    private void Print(string message) => Console.WriteLine($"User: {Nickname}\n" +
                                                             $"Id: {Id}\n" +
                                                             $"Message: {message}\n");
 

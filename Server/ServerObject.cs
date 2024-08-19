@@ -114,9 +114,9 @@ class ServerObject
         foreach (var client in disconnectedClients)
         {
             _clients.Remove(client);
-            var userName = client.UserName;
+            var nickname = client.Nickname;
             RemoveConnection(client);
-            await BroadcastMessageAsync($"{userName} left the chat");
+            await BroadcastMessageAsync($"{nickname} left the chat");
         }
     }
 
@@ -136,9 +136,9 @@ class ServerObject
         foreach (var client in disconnectedClients)
         {
             _clients.Remove(client);
-            var userName = client.UserName;
+            var nickname = client.Nickname;
             RemoveConnection(client);
-            await BroadcastMessageAsync($"{userName} left the chat");
+            await BroadcastMessageAsync($"{nickname} left the chat");
         }
     }
 

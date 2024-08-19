@@ -12,7 +12,7 @@ internal class Program
     private static readonly TcpClient _client = new();
     private static StreamReader? _reader = null;
     private static StreamWriter? _writer = null;
-    private static string? userName;
+    private static string? nickname;
     private static string[]? commands;
 
     public static async Task Main(string[] args)
@@ -22,19 +22,9 @@ internal class Program
 
         try
         {
-            do
-            {
-                Console.Write("Enter the host IP: ");
-                host = Console.ReadLine();
-                Console.Clear();
-            } while (string.IsNullOrEmpty(host) || string.IsNullOrWhiteSpace(host));
-
-            do
-            {
-                Console.Clear();
-                Console.Write("Enter your nickname: ");
-                userName = Console.ReadLine();
-            } while (string.IsNullOrEmpty(userName) || string.IsNullOrWhiteSpace(userName) || userName.Equals("Admin"));
+            host = GetHostInput();
+           
+            nickname = GetNicknameInput();
 
             _client.Connect(host, port);
 
@@ -59,15 +49,37 @@ internal class Program
             Exit(0);
         }
     }
+    private static string GetHostInput() 
+    {
+        string? host;
+        do
+        {
+            Console.Write("Enter the host IP: ");
+            host = Console.ReadLine();
+            Console.Clear();
+        } while (string.IsNullOrEmpty(host) || string.IsNullOrWhiteSpace(host));
+        return host;
+    }
+    private static string GetNicknameInput() 
+    {
+        string? nickname;
+        do
+        {
+            Console.Clear();
+            Console.Write("Enter your nickname: ");
+            nickname = Console.ReadLine();
+        } while (string.IsNullOrEmpty(nickname) || string.IsNullOrWhiteSpace(nickname) || nickname.Equals("Admin"));
+        return nickname;
+    }
 
     private static async Task SendMassageAsync(StreamWriter writer)
     {
         try
         {
-            await writer.WriteLineAndFlushAsync(userName);
+            await writer.WriteLineAndFlushAsync(nickname);
 
             Console.Clear();
-            Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {userName}");
+            Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {nickname}");
             
             while (true)
             {
