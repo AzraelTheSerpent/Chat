@@ -4,7 +4,7 @@ class ServerObject
 {
     private TcpListener _listener = new(IPAddress.Any, 8888);
     private List<ClientObject> _clients = [];
-    private readonly string[] _commands =
+    internal readonly string[] _commands =
     [
         "/stop" ,
         "/kick" ,
@@ -97,7 +97,7 @@ class ServerObject
         input = Console.ReadLine();
     }
 
-    private async Task BroadcastMessageAsync(string message, string id)
+    protected internal async Task BroadcastMessageAsync(string message, string id)
     {
         var disconnectedClients = new List<ClientObject>();
         foreach (var client in _clients)
@@ -120,7 +120,7 @@ class ServerObject
         }
     }
 
-    private async Task BroadcastMessageAsync(string message)
+    protected internal async Task BroadcastMessageAsync(string message)
     {
         var disconnectedClients = new List<ClientObject>();
         foreach (var client in _clients)
@@ -152,7 +152,7 @@ class ServerObject
         _listener.Stop();
     }
 
-    private void RemoveConnection(string id)
+    protected internal void RemoveConnection(string id)
     {
         ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
 
@@ -160,7 +160,7 @@ class ServerObject
             _clients.Remove(client);
         client?.Close();
     }
-    private void RemoveConnection(ClientObject client)
+    protected internal void RemoveConnection(ClientObject client)
     {
         _clients.Remove(client);
         client?.Close();
