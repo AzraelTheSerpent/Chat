@@ -2,9 +2,9 @@ namespace Chat;
 
 class ServerObject
 {
-    protected TcpListener listener = new(IPAddress.Any, 8888);
-    protected List<ClientObject> clients = [];
-    protected internal string[] commands =
+    private TcpListener _listener = new(IPAddress.Any, 8888);
+    private List<ClientObject> _clients = [];
+    private readonly string[] _commands =
     [
         "/stop" ,
         "/kick" ,
@@ -12,19 +12,19 @@ class ServerObject
         "/exit" 
     ];
 
-    protected internal async Task ListenAsync()
+    internal async Task ListenAsync()
     {
         try
         {
-            listener.Start();
+            _listener.Start();
             Console.WriteLine("Server is running. Expect connections...");
 
             while (true)
             {
-                TcpClient client = await listener.AcceptTcpClientAsync();
+                TcpClient client = await _listener.AcceptTcpClientAsync();
 
                 ClientObject clientObject = new(client, this);
-                clients.Add(clientObject);
+                _clients.Add(clientObject);
                 Task tmpTask = clientObject.StartAsync();
             }
         }
@@ -38,7 +38,7 @@ class ServerObject
         }
     }
 
-    protected internal async Task ManageAsync()
+    internal async Task ManageAsync()
     {
         try
         {
@@ -48,28 +48,17 @@ class ServerObject
 
                 if (string.IsNullOrEmpty(command)) continue;
                 
-                if (command.Equals(commands[2]))
+                if (command.Equals(_commands[2]))
                 {
-                    Console.Write("Enter the message: ");
-                    string? message = Console.ReadLine();
-
-                    if (string.IsNullOrEmpty(message)) continue;
-
-                    message = $"Admin: {message}";
-                    await BroadcastMessageAsync(message);
+                    await HandleMessageCommand();
                     continue;
                 }
-                if (command.Equals(commands[1]))
+                if (command.Equals(_commands[1]))
                 {
-                    Console.Write("Id of user to kick: ");
-                    string? id = Console.ReadLine();
-
-                    if (string.IsNullOrEmpty(id)) continue;
-
-                    await KickClient(id);
+                    await HandleKickCommand();
                     continue;
                 }
-                if (command.Equals(commands[0]))
+                if (command.Equals(_commands[0]))
                     throw new Exception("Server was stopped");
             }
         }
@@ -82,11 +71,36 @@ class ServerObject
             await Disconnect();
         }
     }
+    private async Task HandleMessageCommand()
+    {
+        string? message;
+        HandleInput("Enter the message: ", out message);
 
-    protected internal async Task BroadcastMessageAsync(string message, string id)
+        if (string.IsNullOrEmpty(message)) return;
+
+        message = $"Admin: {message}";
+        await BroadcastMessageAsync(message);
+    }
+
+    private async Task HandleKickCommand()
+    {
+        string? id;
+        HandleInput("Id of user to kick: ", out id);
+
+        if (string.IsNullOrEmpty(id)) return;
+
+        await KickClient(id);
+    }
+    private void HandleInput(string message, out string? input)
+    {
+        Console.Write(message);
+        input = Console.ReadLine();
+    }
+
+    private async Task BroadcastMessageAsync(string message, string id)
     {
         var disconnectedClients = new List<ClientObject>();
-        foreach (var client in clients)
+        foreach (var client in _clients)
             try
             {
                 if (client.Id != id)
@@ -99,17 +113,17 @@ class ServerObject
 
         foreach (var client in disconnectedClients)
         {
-            clients.Remove(client);
+            _clients.Remove(client);
             var userName = client.UserName;
             RemoveConnection(client);
             await BroadcastMessageAsync($"{userName} left the chat");
         }
     }
 
-    protected internal async Task BroadcastMessageAsync(string message)
+    private async Task BroadcastMessageAsync(string message)
     {
         var disconnectedClients = new List<ClientObject>();
-        foreach (var client in clients)
+        foreach (var client in _clients)
             try
             {
                 await client.Writer.WriteLineAndFlushAsync(message);
@@ -121,7 +135,7 @@ class ServerObject
 
         foreach (var client in disconnectedClients)
         {
-            clients.Remove(client);
+            _clients.Remove(client);
             var userName = client.UserName;
             RemoveConnection(client);
             await BroadcastMessageAsync($"{userName} left the chat");
@@ -130,33 +144,33 @@ class ServerObject
 
     private async Task Disconnect()
     {
-        foreach(ClientObject client in clients)
+        foreach(ClientObject client in _clients)
         {
-            await client.Writer.WriteLineAndFlushAsync(commands[0]);
+            await client.Writer.WriteLineAndFlushAsync(_commands[0]);
             client.Close();
         }  
-        listener.Stop();
+        _listener.Stop();
     }
 
-    protected internal void RemoveConnection(string id)
+    private void RemoveConnection(string id)
     {
-        ClientObject? client = clients.FirstOrDefault(c => c.Id == id);
+        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
 
         if (client is not null) 
-            clients.Remove(client);
+            _clients.Remove(client);
         client?.Close();
     }
-    protected internal void RemoveConnection(ClientObject client)
+    private void RemoveConnection(ClientObject client)
     {
-        clients.Remove(client);
+        _clients.Remove(client);
         client?.Close();
     }
-    protected internal async Task KickClient(string id)
+    private async Task KickClient(string id)
     {
-        ClientObject? client = clients.FirstOrDefault(c => c.Id == id);
+        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
-        await client.Writer.WriteLineAndFlushAsync(commands[1]);
+        await client.Writer.WriteLineAndFlushAsync(_commands[1]);
 
         RemoveConnection(client);
     }

@@ -2,12 +2,12 @@ namespace Chat;
 
 class ClientObject
 {
-    protected internal string Id {get;} = Guid.NewGuid().ToString();
-    protected internal string? UserName;
-    protected internal StreamWriter Writer {get;}
-    protected internal StreamReader Reader {get;}
-    private TcpClient _client;
-    private ServerObject _server;
+    internal string Id {get;} = Guid.NewGuid().ToString();
+    internal string? UserName;
+    internal StreamWriter Writer {get;}
+    internal StreamReader Reader {get;}
+    private readonly TcpClient _client;
+    private readonly ServerObject _server;
     private bool clientIsLive;
 
     public ClientObject(TcpClient client, ServerObject server)
@@ -27,7 +27,7 @@ class ClientObject
     {
         try
         {
-            await SendCommands(_server.commands);
+            await SendCommands(_server._commands);
 
             UserName = await Reader.ReadLineAsync();
             string? message = $"{UserName} join to chat";
@@ -42,7 +42,7 @@ class ClientObject
                     message = await Reader.ReadLineAsync();
                     
                     if (message == null) continue;
-                    if (message.Equals(_server.commands[3])) throw new Exception();
+                    if (message.Equals(_server._commands[3])) throw new Exception();
                     
                     Print(message);
                     
@@ -86,7 +86,7 @@ class ClientObject
                                                             $"Id: {Id}\n" +
                                                             $"Message: {message}\n");
 
-    protected internal void Close()
+    internal void Close()
     {
         clientIsLive = false;
         Writer.Close();
