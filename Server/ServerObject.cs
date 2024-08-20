@@ -97,7 +97,7 @@ class ServerObject
         input = Console.ReadLine();
     }
 
-    protected internal async Task BroadcastMessageAsync(string message, string id)
+    protected internal async Task BroadcastMessageAsync(string message, string? id = null)
     {
         var disconnectedClients = new List<ClientObject>();
         foreach (var client in _clients)
@@ -105,28 +105,6 @@ class ServerObject
             {
                 if (client.Id != id)
                     await client.Writer.WriteLineAndFlushAsync(message);
-            }
-            catch
-            {
-                disconnectedClients.Add(client);
-            }
-
-        foreach (var client in disconnectedClients)
-        {
-            _clients.Remove(client);
-            var nickname = client.Nickname;
-            RemoveConnection(client);
-            await BroadcastMessageAsync($"{nickname} left the chat");
-        }
-    }
-
-    protected internal async Task BroadcastMessageAsync(string message)
-    {
-        var disconnectedClients = new List<ClientObject>();
-        foreach (var client in _clients)
-            try
-            {
-                await client.Writer.WriteLineAndFlushAsync(message);
             }
             catch
             {

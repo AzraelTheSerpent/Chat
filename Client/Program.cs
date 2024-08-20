@@ -155,18 +155,19 @@ internal class Program
         if (commands is null) return;
 
         if (message.Equals(commands[0]))
-            Exit("Server was stopped", 0);
+            Exit(0, "Server was stopped");
 
         if (message.Equals(commands[1]))
-            Exit("You've been kicked by an admin", 0);
+            Exit(0, "You've been kicked by an admin");
 
         if (message.Equals(commands[3]))
             Exit(0);
     }
 
-    private static void Exit(string message, int exitCode)
+    private static void Exit(int exitCode, string? message = null)
     {
-        Console.WriteLine(message);
+        if (message is not null)
+            Console.WriteLine(message);
 
         Console.WriteLine("The app will close in: ");
         for (int i = 5; i != 0; i--)
@@ -175,22 +176,6 @@ internal class Program
             Thread.Sleep(1000);
         }
         
-        _writer?.Close();
-        _reader?.Close();
-        _client.Close();
-
-        Environment.Exit(exitCode);
-    }
-
-    private static void Exit(int exitCode)
-    {
-        Console.WriteLine("The app will close in: ");
-        for (int i = 5; i != 0; i--)
-        {
-            Console.Write($"{i}...\t");
-            Thread.Sleep(1000);
-        }
-
         _writer?.Close();
         _reader?.Close();
         _client.Close();
