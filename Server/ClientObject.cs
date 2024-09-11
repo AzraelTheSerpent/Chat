@@ -17,10 +17,10 @@ class ClientObject
         _client = client;
         _server = server;
 
-        var steam = client.GetStream();
+        var stream = client.GetStream();
         
-        Writer = new StreamWriter(steam);
-        Reader = new StreamReader(steam);
+        Writer = new StreamWriter(stream);
+        Reader = new StreamReader(stream);
     }
 
     public async Task StartAsync()
@@ -74,10 +74,7 @@ class ClientObject
     {
         string? data = null;
         foreach (var command in commands)
-        {
-            data += command;
-            data += '\\';
-        }
+            data += $"{command}\\";
 
         await Writer.WriteLineAndFlushAsync(data);
     }

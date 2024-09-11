@@ -3,7 +3,7 @@ namespace Chat;
 class ServerObject
 {
     private TcpListener _listener = new(IPAddress.Any, 8888);
-    private List<ClientObject> _clients = [];
+    private readonly List<ClientObject> _clients = [];
     internal readonly string[] _commands =
     [
         "/stop" ,
@@ -73,8 +73,7 @@ class ServerObject
     }
     private async Task HandleMessageCommand()
     {
-        string? message;
-        HandleInput("Enter the message: ", out message);
+        HandleInput("Enter the message: ", out string? message);
 
         if (string.IsNullOrEmpty(message)) return;
 
@@ -84,8 +83,7 @@ class ServerObject
 
     private async Task HandleKickCommand()
     {
-        string? id;
-        HandleInput("Id of user to kick: ", out id);
+        HandleInput("Id of user to kick: ", out string? id);
 
         if (string.IsNullOrEmpty(id)) return;
 
