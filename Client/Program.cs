@@ -118,10 +118,20 @@ internal class Program
 
                 if (message[0] == '/')
                     CommandHandling(message);
+                else if(OperatingSystem.IsWindows())
+                {
+                    var (left, top) = Console.GetCursorPosition();
 
-                Console.WriteLine(message);
+                    Console.MoveBufferArea(0, top, left, 1, 0, top + 1);
+
+                    Console.SetCursorPosition(0, top);
+                    Console.WriteLine(message);
+
+                    Console.SetCursorPosition(left, top + 1);
+                }
+                else
+                    Console.WriteLine(message);
             }
-            
         }
         catch (Exception ex)
         {
