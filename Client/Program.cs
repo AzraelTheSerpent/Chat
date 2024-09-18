@@ -35,8 +35,7 @@ internal class Program
 
             commands = await ReceiveCommands(_reader);
 
-            Task ReceiveMsg = ReceiveMessageAsync(_reader);
-            Task SendMsg = SendMassageAsync(_writer);
+            Task ReceiveMsg = ReceiveMessageAsync(_reader), SendMsg = SendMassageAsync(_writer);
 
             Task.WaitAny(ReceiveMsg, SendMsg);
         }
@@ -95,9 +94,6 @@ internal class Program
                 Console.WriteLine($"You: {message}");
 
                 await writer.WriteLineAndFlushAsync(message);
-
-                if (message[0] == '/')
-                    CommandHandling(message);
             }
         }
         catch (Exception ex)
@@ -172,6 +168,9 @@ internal class Program
 
         if (message.Equals(commands[3]))
             Exit(0);
+
+        if (message.Equals(commands[4]))
+            Exit(0, "You've been banned by an admin");
     }
 
     private static void Exit(int exitCode, string? message = null)
