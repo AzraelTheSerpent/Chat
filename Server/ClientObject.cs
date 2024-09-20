@@ -45,21 +45,21 @@ class ClientObject
                 try
                 {
                     if (IP is null) return;
-                    foreach (IPAddress ip in _server.BannedClient)
-                        if (IP.Equals(ip))
+                    foreach (var client in _server.BannedClient)
+                        if (IP.Equals(client.Key))
                         {
                             await Writer.WriteLineAndFlushAsync(_server.commands[4]);
                             throw new Exception();
                         }
 
                     message = await Reader.ReadLineAsync();
-                    
+
                     if (message == null) continue;
-                    if (message.Equals(_server.commands[3]))
-                    {
-                        await Writer.WriteLineAndFlushAsync(message);
-                        throw new Exception();
-                    } 
+                    if (message[0] == '/') 
+                    { 
+                        await HandleCommand(message);
+                        continue;
+                    }
                     
                     Print(message);
                     
@@ -84,6 +84,19 @@ class ClientObject
         finally
         {
             _server.RemoveConnection(Id);
+        }
+    }
+    private async Task HandleCommand(string command) 
+    {
+        if (command.Equals(_server.commands[3])) 
+        {
+            await Writer.WriteLineAndFlushAsync(command);
+            throw new Exception();
+        }
+        if (command.Equals(_server.commands[6]))
+        {
+            await Writer.WriteLineAndFlushAsync(_server.GetClientsList());
+            return;
         }
     }
 

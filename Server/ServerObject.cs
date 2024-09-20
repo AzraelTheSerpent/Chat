@@ -4,8 +4,8 @@ class ServerObject
 {
     private readonly TcpListener _listener = new(IPAddress.Any, 8888);
     private readonly List<ClientObject> _clients = [];
-    private List<IPAddress> _bannedClients = [];
-    internal List<IPAddress> BannedClient => new(_bannedClients);
+    private readonly Dictionary<IPAddress, string> _bannedClients = [];
+    internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
     internal readonly string[] commands =
     [
         "/stop" ,
@@ -13,7 +13,7 @@ class ServerObject
         "/msg" ,
         "/exit",
         "/ban",
-        //TODO: Implement commands to output a list of banned and connected clients
+        "/unban",
         "/clist",
         "/blist"
     ];
@@ -54,7 +54,22 @@ class ServerObject
                 string? command = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(command)) continue;
-                
+
+                if (command.Equals(commands[7]))
+                {
+                    HandleBannedClientsListCommand();
+                    continue;
+                }
+                if (command.Equals(commands[6]))
+                {
+                    HandleConnectedClientsListCommand();
+                    continue;
+                }
+                if (command.Equals(commands[5]))
+                {
+                    HandleUnbanCommand();
+                    continue;
+                }
                 if (command.Equals(commands[4]))
                 {
                     await HandleBanCommand();
@@ -83,6 +98,42 @@ class ServerObject
             await Disconnect();
         }
     }
+    internal string GetClientsList() 
+    {
+        StringBuilder builder = new();
+        _clients.ForEach(c => builder.Append($"NickName:\t{c.Nickname}\tId:\t{c.Id}\n"));
+        return builder.ToString();
+    }
+    protected internal async Task BroadcastMessageAsync(string message, string? id = null)
+    {
+        var disconnectedClients = new List<ClientObject>();
+        foreach (var client in _clients)
+            try
+            {
+                if (client.Id != id)
+                    await client.Writer.WriteLineAndFlushAsync(message);
+            }
+            catch
+            {
+                disconnectedClients.Add(client);
+            }
+
+        foreach (var client in disconnectedClients)
+        {
+            _clients.Remove(client);
+            var nickname = client.Nickname;
+            RemoveConnection(client);
+            await BroadcastMessageAsync($"{nickname} left the chat");
+        }
+    }
+    private void HandleConnectedClientsListCommand() => Console.WriteLine(GetClientsList());
+
+    private void HandleBannedClientsListCommand()
+    {
+        foreach(var bannedClient in _bannedClients)
+            Console.WriteLine($"NickName:\t{bannedClient.Value}\tIp:\t{bannedClient.Key}");
+    }
+
     private async Task HandleBanCommand() 
     {
         HandleInput("Id of user to ban: ", out string? id);
@@ -92,12 +143,30 @@ class ServerObject
         await BanClient(id);
     }
 
+    private void HandleUnbanCommand()
+    {
+        HandleInput("IP of user to unban: ", out string? ip);
+
+        if (string.IsNullOrEmpty(ip)) return;
+
+        if(IPAddress.TryParse(ip, out IPAddress? address))
+            UnbanClient(address);
+    }
+
+    private void UnbanClient(IPAddress? ipAddress)
+    {
+        if (ipAddress is null) return;
+        _bannedClients.Remove(ipAddress);
+    }
+
     private async Task BanClient(string id)
     {
         ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
-        if (client is null || client.IP is null) return;
+        if (client is null || 
+            client.IP is null || 
+            client.Nickname is null) return;
 
-        _bannedClients.Add(client.IP);
+        _bannedClients.Add(client.IP, client.Nickname);
         await client.Writer.WriteLineAndFlushAsync(commands[4]);
 
         RemoveConnection(client);
@@ -125,29 +194,6 @@ class ServerObject
     {
         Console.Write(message);
         input = Console.ReadLine();
-    }
-
-    protected internal async Task BroadcastMessageAsync(string message, string? id = null)
-    {
-        var disconnectedClients = new List<ClientObject>();
-        foreach (var client in _clients)
-            try
-            {
-                if (client.Id != id)
-                    await client.Writer.WriteLineAndFlushAsync(message);
-            }
-            catch
-            {
-                disconnectedClients.Add(client);
-            }
-
-        foreach (var client in disconnectedClients)
-        {
-            _clients.Remove(client);
-            var nickname = client.Nickname;
-            RemoveConnection(client);
-            await BroadcastMessageAsync($"{nickname} left the chat");
-        }
     }
 
     private async Task Disconnect()

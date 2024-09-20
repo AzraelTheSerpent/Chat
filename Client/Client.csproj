@@ -12,7 +12,7 @@
 		<Nullable>enable</Nullable>
 		<ApplicationIcon Condition="'$(Configuration)' == 'Release'">..\icons\chat.ico</ApplicationIcon>
 		<AssemblyName>Chat</AssemblyName>
-		<FileVersion>1.6</FileVersion>
+		<FileVersion>1.7</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
