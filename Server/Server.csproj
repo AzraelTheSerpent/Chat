@@ -6,7 +6,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>Server</AssemblyName>
-		<FileVersion>1.7.1</FileVersion>
+		<FileVersion>1.8</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">

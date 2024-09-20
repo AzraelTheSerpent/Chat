@@ -115,7 +115,7 @@ class ServerObject
             try
             {
                 if (client.Id != id)
-                    await client.Writer.WriteLineAndFlushAsync(message);
+                    await client.Writer.WriteLineAsync(message);
             }
             catch
             {
@@ -172,7 +172,7 @@ class ServerObject
             client.Nickname is null) return;
 
         _bannedClients.Add(client.IP, client.Nickname);
-        await client.Writer.WriteLineAndFlushAsync(commands[4]);
+        await client.Writer.WriteLineAsync(commands[4]);
 
         RemoveConnection(client);
     }
@@ -205,7 +205,7 @@ class ServerObject
     {
         foreach(ClientObject client in _clients)
         {
-            await client.Writer.WriteLineAndFlushAsync(commands[0]);
+            await client.Writer.WriteLineAsync(commands[0]);
             client.Close();
         }  
         _listener.Stop();
@@ -229,7 +229,7 @@ class ServerObject
         ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
-        await client.Writer.WriteLineAndFlushAsync(commands[1]);
+        await client.Writer.WriteLineAsync(commands[1]);
 
         RemoveConnection(client);
     }

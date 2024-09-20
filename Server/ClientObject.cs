@@ -25,6 +25,7 @@ class ClientObject
         var stream = client.GetStream();
         
         Writer = new StreamWriter(stream);
+        Writer.AutoFlush = true;
         Reader = new StreamReader(stream);
     }
 
@@ -48,7 +49,7 @@ class ClientObject
                     foreach (var client in _server.BannedClient)
                         if (IP.Equals(client.Key))
                         {
-                            await Writer.WriteLineAndFlushAsync(_server.commands[4]);
+                            await Writer.WriteLineAsync(_server.commands[4]);
                             throw new Exception();
                         }
 
@@ -90,12 +91,12 @@ class ClientObject
     {
         if (command.Equals(_server.commands[3])) 
         {
-            await Writer.WriteLineAndFlushAsync(command);
+            await Writer.WriteLineAsync(command);
             throw new Exception();
         }
         if (command.Equals(_server.commands[6]))
         {
-            await Writer.WriteLineAndFlushAsync(_server.GetClientsList());
+            await Writer.WriteLineAsync(_server.GetClientsList());
             return;
         }
     }
@@ -106,7 +107,7 @@ class ClientObject
         foreach (var command in commands)
             data += $"{command}\\";
 
-        await Writer.WriteLineAndFlushAsync(data);
+        await Writer.WriteLineAsync(data);
     }
 
     private void Print(string message) => Console.WriteLine($"User: {Nickname}\n" +

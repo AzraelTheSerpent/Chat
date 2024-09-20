@@ -75,7 +75,8 @@ internal class Program
     {
         try
         {
-            await writer.WriteLineAndFlushAsync(nickname);
+            writer.AutoFlush = true;
+            await writer.WriteLineAsync(nickname);
 
             Console.Clear();
             Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {nickname}");
@@ -93,7 +94,7 @@ internal class Program
                 Console.SetCursorPosition(0, Console.CursorTop - 1);
                 Console.WriteLine($"You: {message}");
 
-                await writer.WriteLineAndFlushAsync(message);
+                await writer.WriteLineAsync(message);
             }
         }
         catch (Exception ex)
