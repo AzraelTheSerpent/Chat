@@ -101,7 +101,11 @@ class ServerObject
     internal string GetClientsList() 
     {
         StringBuilder builder = new();
-        _clients.ForEach(c => builder.Append($"NickName:\t{c.Nickname}\tId:\t{c.Id}\n"));
+        var clients = from client in _clients orderby client.Nickname, client.Id select client;
+
+        foreach (var c in clients)
+            builder.Append($"NickName:\t{c.Nickname}\tId:\t{c.Id}\n");
+
         return builder.ToString();
     }
     protected internal async Task BroadcastMessageAsync(string message, string? id = null)
@@ -130,7 +134,8 @@ class ServerObject
 
     private void HandleBannedClientsListCommand()
     {
-        foreach(var bannedClient in _bannedClients)
+        var bannedClients = from client in BannedClient orderby client.Value select client;
+        foreach(var bannedClient in bannedClients)
             Console.WriteLine($"NickName:\t{bannedClient.Value}\tIp:\t{bannedClient.Key}");
     }
 
