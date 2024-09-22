@@ -1,3 +1,5 @@
+using Server;
+
 namespace Chat;
 
 class ClientObject
@@ -10,6 +12,7 @@ class ClientObject
     private string? _nickname;
     private readonly TcpClient _client;
     private readonly ServerObject _server;
+    private readonly CommandHandler _handler;
     private bool clientIsLive;
 
     public ClientObject(TcpClient client, ServerObject server)
@@ -19,21 +22,25 @@ class ClientObject
         _client = client;
         _server = server;
 
+        _handler = new(this);
+
         if (client.Client.RemoteEndPoint is IPEndPoint endPoint)
             IP = endPoint.Address;
 
         var stream = client.GetStream();
-        
-        Writer = new StreamWriter(stream);
-        Writer.AutoFlush = true;
-        Reader = new StreamReader(stream);
+
+        Writer = new(stream)
+        {
+            AutoFlush = true
+        };
+        Reader = new(stream);
     }
 
     public async Task StartAsync()
     {
         try
         {
-            await SendCommands(_server.commands);
+            await SendCommands(CommandHandler.commands);
 
             _nickname = await Reader.ReadLineAsync();
             string? message = $"{Nickname} join to chat";
@@ -49,7 +56,7 @@ class ClientObject
                     foreach (var client in _server.BannedClient)
                         if (IP.Equals(client.Key))
                         {
-                            await Writer.WriteLineAsync(_server.commands[4]);
+                            await Writer.WriteLineAsync(CommandHandler.commands[4]);
                             throw new Exception();
                         }
 
@@ -58,7 +65,7 @@ class ClientObject
                     if (message == null) continue;
                     if (message[0] == '/') 
                     { 
-                        await HandleCommand(message);
+                        await _handler.HandleCommand(message);
                         continue;
                     }
                     
@@ -87,19 +94,8 @@ class ClientObject
             _server.RemoveConnection(Id);
         }
     }
-    private async Task HandleCommand(string command) 
-    {
-        if (command.Equals(_server.commands[3])) 
-        {
-            await Writer.WriteLineAsync(command);
-            throw new Exception();
-        }
-        if (command.Equals(_server.commands[6]))
-        {
-            await Writer.WriteLineAsync(_server.GetClientsList());
-            return;
-        }
-    }
+
+    public string GetServerClientsList() => _server.GetClientsList();
 
     private async Task SendCommands(string[] commands)
     {

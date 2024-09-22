@@ -1,3 +1,5 @@
+using Server;
+
 namespace Chat;
 
 class ServerObject
@@ -6,17 +8,6 @@ class ServerObject
     private readonly List<ClientObject> _clients = [];
     private readonly Dictionary<IPAddress, string> _bannedClients = [];
     internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
-    internal readonly string[] commands =
-    [
-        "/stop" ,
-        "/kick" ,
-        "/msg" ,
-        "/exit",
-        "/ban",
-        "/unban",
-        "/clist",
-        "/blist"
-    ];
 
     internal async Task ListenAsync()
     {
@@ -49,44 +40,14 @@ class ServerObject
     {
         try
         {
+            CommandHandler handler = new(this);
             while (true)
             {
                 string? command = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(command)) continue;
 
-                if (command.Equals(commands[7]))
-                {
-                    HandleBannedClientsListCommand();
-                    continue;
-                }
-                if (command.Equals(commands[6]))
-                {
-                    HandleConnectedClientsListCommand();
-                    continue;
-                }
-                if (command.Equals(commands[5]))
-                {
-                    HandleUnbanCommand();
-                    continue;
-                }
-                if (command.Equals(commands[4]))
-                {
-                    await HandleBanCommand();
-                    continue;
-                }
-                if (command.Equals(commands[2]))
-                {
-                    await HandleMessageCommand();
-                    continue;
-                }
-                if (command.Equals(commands[1]))
-                {
-                    await HandleKickCommand();
-                    continue;
-                }
-                if (command.Equals(commands[0]))
-                    throw new Exception("Server was stopped");
+                await handler.HandleCommand(command);
             }
         }
         catch (Exception ex)
@@ -130,82 +91,38 @@ class ServerObject
             await BroadcastMessageAsync($"{nickname} left the chat");
         }
     }
-    private void HandleConnectedClientsListCommand() => Console.WriteLine(GetClientsList());
-
-    private void HandleBannedClientsListCommand()
-    {
-        var bannedClients = from client in BannedClient orderby client.Value select client;
-        foreach(var bannedClient in bannedClients)
-            Console.WriteLine($"NickName:\t{bannedClient.Value}\tIp:\t{bannedClient.Key}");
-    }
-
-    private async Task HandleBanCommand() 
-    {
-        HandleInput("Id of user to ban: ", out string? id);
-
-        if (string.IsNullOrEmpty(id)) return;
-
-        await BanClient(id);
-    }
-
-    private void HandleUnbanCommand()
-    {
-        HandleInput("IP of user to unban: ", out string? ip);
-
-        if (string.IsNullOrEmpty(ip)) return;
-
-        if(IPAddress.TryParse(ip, out IPAddress? address))
-            UnbanClient(address);
-    }
-
-    private void UnbanClient(IPAddress? ipAddress)
-    {
-        if (ipAddress is null) return;
-        _bannedClients.Remove(ipAddress);
-    }
-
-    private async Task BanClient(string id)
+    public async Task KickClient(string id)
     {
         ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
-        if (client is null || 
-            client.IP is null || 
-            client.Nickname is null) return;
+        if (client is null) return;
 
-        _bannedClients.Add(client.IP, client.Nickname);
-        await client.Writer.WriteLineAsync(commands[4]);
+        await client.Writer.WriteLineAsync(CommandHandler.commands[1]);
 
         RemoveConnection(client);
     }
-
-    private async Task HandleMessageCommand()
+    public async Task BanClient(string id)
     {
-        HandleInput("Enter the message: ", out string? message);
+        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
+        if (client is null ||
+            client.IP is null ||
+            client.Nickname is null) return;
 
-        if (string.IsNullOrEmpty(message)) return;
+        _bannedClients.Add(client.IP, client.Nickname);
+        await client.Writer.WriteLineAsync(CommandHandler.commands[4]);
 
-        message = $"Admin: {message}";
-        await BroadcastMessageAsync(message);
+        RemoveConnection(client);
     }
-
-    private async Task HandleKickCommand()
+    public void UnbanClient(IPAddress? ipAddress)
     {
-        HandleInput("Id of user to kick: ", out string? id);
-
-        if (string.IsNullOrEmpty(id)) return;
-
-        await KickClient(id);
-    }
-    private void HandleInput(string message, out string? input)
-    {
-        Console.Write(message);
-        input = Console.ReadLine();
+        if (ipAddress is null) return;
+        _bannedClients.Remove(ipAddress);
     }
 
     private async Task Disconnect()
     {
         foreach(ClientObject client in _clients)
         {
-            await client.Writer.WriteLineAsync(commands[0]);
+            await client.Writer.WriteLineAsync(CommandHandler.commands[0]);
             client.Close();
         }  
         _listener.Stop();
@@ -223,14 +140,5 @@ class ServerObject
     {
         _clients.Remove(client);
         client?.Close();
-    }
-    private async Task KickClient(string id)
-    {
-        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
-        if (client is null) return;
-
-        await client.Writer.WriteLineAsync(commands[1]);
-
-        RemoveConnection(client);
     }
 }
