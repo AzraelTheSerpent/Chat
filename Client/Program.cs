@@ -13,9 +13,8 @@ internal class Program
     private static StreamReader? _reader = null;
     private static StreamWriter? _writer = null;
     private static string? nickname;
-    private static string[]? commands;
 
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         string? host;
         int port = 8888;
@@ -33,11 +32,7 @@ internal class Program
 
             if (_reader is null || _writer is null) return;
 
-            commands = await ReceiveCommands(_reader);
-
-            Task ReceiveMsg = ReceiveMessageAsync(_reader), SendMsg = SendMassageAsync(_writer);
-
-            Task.WaitAny(ReceiveMsg, SendMsg);
+            Task.WaitAny(ReceiveMessageAsync(_reader), SendMassageAsync(_writer));
         }
         catch (Exception ex)
         {
@@ -45,7 +40,7 @@ internal class Program
         }
         finally
         {
-            Exit(0);
+            Exit();
         }
     }
     private static string GetHostInput() 
@@ -114,7 +109,7 @@ internal class Program
                 if (string.IsNullOrEmpty(message)) continue;
 
                 if (message[0] == '/')
-                    CommandHandling(message);
+                    CommandHandling(message.GetCommand());
                 else if(OperatingSystem.IsWindows())
                 {
                     var (left, top) = Console.GetCursorPosition();
@@ -135,46 +130,27 @@ internal class Program
             Console.WriteLine(ex.Message);
         }
     }
-
-    private static async Task<string[]?> ReceiveCommands(StreamReader? reader)
+    
+    private static void CommandHandling(Commands command)
     {
-        if (reader is null) return null;
-        string response = await reader.ReadLineAsync() ?? throw new Exception("Failed to receive data");
-        
-        string? buffer = null;
-        List<string?> tmpCommands = [];
-        foreach (var chr in response)
+        switch (command) 
         {
-            if (chr == '\\')
-            {
-                tmpCommands.Add(buffer);
-                buffer = null;
-            }
-            else
-                buffer += chr;
+            case Commands.Stop:
+                Exit(0, "Server was stopped");
+                break;
+            case Commands.Kick:
+                Exit(0, "You've been kicked by an admin");
+                break;
+            case Commands.Exit:
+                Exit();
+                break;
+            case Commands.Ban:
+                Exit(0, "You've been banned by an admin");
+                break;
         }
-        
-        return [.. tmpCommands];
     }
 
-    private static void CommandHandling(string message)
-    {
-        if (commands is null) return;
-
-        if (message.Equals(commands[0]))
-            Exit(0, "Server was stopped");
-
-        if (message.Equals(commands[1]))
-            Exit(0, "You've been kicked by an admin");
-
-        if (message.Equals(commands[3]))
-            Exit(0);
-
-        if (message.Equals(commands[4]))
-            Exit(0, "You've been banned by an admin");
-    }
-
-    private static void Exit(int exitCode, string? message = null)
+    private static void Exit(int exitCode = 0, string? message = null)
     {
         if (message is not null)
             Console.WriteLine(message);

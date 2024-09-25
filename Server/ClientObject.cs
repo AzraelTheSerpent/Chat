@@ -1,5 +1,3 @@
-using Server;
-
 namespace Chat;
 
 class ClientObject
@@ -40,8 +38,6 @@ class ClientObject
     {
         try
         {
-            await SendCommands(CommandHandler.commands);
-
             _nickname = await Reader.ReadLineAsync();
             string? message = $"{Nickname} join to chat";
 
@@ -56,7 +52,7 @@ class ClientObject
                     foreach (var client in _server.BannedClient)
                         if (IP.Equals(client.Key))
                         {
-                            await Writer.WriteLineAsync(CommandHandler.commands[4]);
+                            await Writer.WriteLineAsync(Commands.Ban.GetCommandValue());
                             throw new Exception();
                         }
 
@@ -65,7 +61,7 @@ class ClientObject
                     if (message == null) continue;
                     if (message[0] == '/') 
                     { 
-                        await _handler.HandleCommand(message);
+                        await _handler.HandleCommand(message.GetCommand());
                         continue;
                     }
                     

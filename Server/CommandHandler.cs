@@ -1,24 +1,11 @@
-﻿using Chat;
-
-namespace Server;
+﻿namespace Chat;
 
 internal class CommandHandler
 {
     private readonly object _sender;
-    internal readonly static string[] commands =
-    [
-        "/stop" ,
-        "/kick" ,
-        "/msg" ,
-        "/exit",
-        "/ban",
-        "/unban",
-        "/clist",
-        "/blist"
-    ];
     public CommandHandler(object sender) => _sender = sender;
 
-    public async Task HandleCommand(string command) 
+    public async Task HandleCommand(Commands command) 
     {
         if (_sender is ServerObject server)
             await HandleServerCommand(command, server);
@@ -26,54 +13,44 @@ internal class CommandHandler
             await HandleClientCommand(command, client);
     }
 
-    private static async Task HandleClientCommand(string command, ClientObject client)
+    private static async Task HandleClientCommand(Commands command, ClientObject client)
     {
-        if (command.Equals(commands[3]))
+        switch (command) 
         {
-            await client.Writer.WriteLineAsync(command);
-            throw new Exception();
-        }
-        if (command.Equals(commands[6]))
-        {
-            await client.Writer.WriteLineAsync(client.GetServerClientsList());
-            return;
-        }
+            case Commands.Exit:
+                await client.Writer.WriteLineAsync(command.GetCommandValue());
+                throw new Exception();
+            case Commands.ClientList:
+                await client.Writer.WriteLineAsync(client.GetServerClientsList());
+                break;
+        };
     }
 
-    private static async Task HandleServerCommand(string command, ServerObject server)
+    private static async Task HandleServerCommand(Commands command, ServerObject server)
     {
-        if (command.Equals(commands[7]))
-        {
-            HandleBannedClientsListCommand(server);
-            return;
-        }
-        if (command.Equals(commands[6]))
-        {
-            HandleConnectedClientsListCommand(server);
-            return;
-        }
-        if (command.Equals(commands[5]))
-        {
-            HandleUnbanCommand(server);
-            return;
-        }
-        if (command.Equals(commands[4]))
-        {
-            await HandleBanCommand(server);
-            return;
-        }
-        if (command.Equals(commands[2]))
-        {
-            await HandleMessageCommand(server);
-            return;
-        }
-        if (command.Equals(commands[1]))
-        {
-            await HandleKickCommand(server);
-            return;
-        }
-        if (command.Equals(commands[0]))
-            throw new Exception("Server was stopped");
+        switch (command)
+        { 
+            case Commands.Stop:
+                throw new Exception("Server was stopped");
+            case Commands.Kick:
+                await HandleKickCommand(server);
+                break;
+            case Commands.Massage:
+                await HandleMessageCommand(server);
+                break;
+            case Commands.Ban:
+                await HandleBanCommand(server);
+                break;
+            case Commands.Unban:
+                HandleUnbanCommand(server);
+                break;
+            case Commands.ClientList:
+                HandleConnectedClientsListCommand(server);
+                break;
+            case Commands.BannedClientList:
+                HandleBannedClientsListCommand(server);
+                break;
+        };
     }
     private static void HandleConnectedClientsListCommand(ServerObject server) => Console.WriteLine(server.GetClientsList());
 

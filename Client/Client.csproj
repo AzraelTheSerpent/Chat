@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<Content Include="..\icons\chat.ico"/>
+		<Content Include="..\icons\chat.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CommandsLib\CommandsLib.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -11,7 +15,7 @@
 		<Nullable>enable</Nullable>
 		<ApplicationIcon Condition="'$(Configuration)' == 'Release'">..\icons\chat.ico</ApplicationIcon>
 		<AssemblyName>Chat</AssemblyName>
-		<FileVersion>1.9</FileVersion>
+		<FileVersion>2.0</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">

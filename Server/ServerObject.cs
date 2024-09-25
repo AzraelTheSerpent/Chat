@@ -1,5 +1,3 @@
-using Server;
-
 namespace Chat;
 
 class ServerObject
@@ -47,7 +45,7 @@ class ServerObject
 
                 if (string.IsNullOrEmpty(command)) continue;
 
-                await handler.HandleCommand(command);
+                await handler.HandleCommand(command.GetCommand());
             }
         }
         catch (Exception ex)
@@ -96,7 +94,7 @@ class ServerObject
         ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
-        await client.Writer.WriteLineAsync(CommandHandler.commands[1]);
+        await client.Writer.WriteLineAsync(Commands.Kick.GetCommandValue());
 
         RemoveConnection(client);
     }
@@ -108,7 +106,7 @@ class ServerObject
             client.Nickname is null) return;
 
         _bannedClients.Add(client.IP, client.Nickname);
-        await client.Writer.WriteLineAsync(CommandHandler.commands[4]);
+        await client.Writer.WriteLineAsync(Commands.Ban.GetCommandValue());
 
         RemoveConnection(client);
     }
@@ -122,7 +120,7 @@ class ServerObject
     {
         foreach(ClientObject client in _clients)
         {
-            await client.Writer.WriteLineAsync(CommandHandler.commands[0]);
+            await client.Writer.WriteLineAsync(Commands.Stop.GetCommandValue());
             client.Close();
         }  
         _listener.Stop();
