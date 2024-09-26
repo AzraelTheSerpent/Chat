@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Linq;
 
 namespace Chat;
 
@@ -35,11 +36,12 @@ public static class CommandEnumExtensions
 {
     public static string? GetCommandValue(this Commands command) 
     {
-        var commandAttribute = command.GetType()?
+        var attributes = command.GetType()?
             .GetField(command.ToString())?
-            .GetCustomAttributes(false)[0]
-            as CommandValueAttribute;
-        return commandAttribute?.Value;
+            .GetCustomAttributes(false);
+        if (attributes?.Length > 0 && attributes[0] is CommandValueAttribute commandAttribute)
+            return commandAttribute.Value;
+        return null;
     }
     public static Commands GetCommand(this string input) 
     {
