@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Chat;
+namespace CommandsLib;
 
 public enum Commands
 {

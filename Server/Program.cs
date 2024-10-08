@@ -1,4 +1,4 @@
-﻿namespace Chat;
+﻿namespace Server;
 
 class Program
 {

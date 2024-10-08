@@ -1,6 +1,6 @@
-namespace Chat;
+namespace Server;
 
-class ClientObject
+class ClientObject : IDisposable
 {
     internal string Id {get;} = Guid.NewGuid().ToString();
     internal string? Nickname { get => _nickname; }
@@ -93,24 +93,15 @@ class ClientObject
 
     public string GetServerClientsList() => _server.GetClientsList();
 
-    private async Task SendCommands(string[] commands)
-    {
-        string? data = null;
-        foreach (var command in commands)
-            data += $"{command}\\";
-
-        await Writer.WriteLineAsync(data);
-    }
-
     private void Print(string message) => Console.WriteLine($"User: {Nickname}\n" +
                                                             $"Id: {Id}\n" +
                                                             $"Message: {message}\n");
 
-    internal void Close()
-    {
+    public void Dispose()
+    {   
         clientIsLive = false;
-        Writer.Close();
-        Reader.Close();
-        _client.Close();
+        Writer.Dispose();
+        Reader.Dispose();
+        _client.Dispose();
     }
 }

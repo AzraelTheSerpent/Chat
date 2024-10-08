@@ -10,7 +10,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>Server</AssemblyName>
-		<FileVersion>2.0.1</FileVersion>
+		<FileVersion>2.0.2</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">

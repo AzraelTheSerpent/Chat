@@ -1,4 +1,4 @@
-namespace Chat;
+namespace Server;
 
 class ServerObject
 {
@@ -121,9 +121,9 @@ class ServerObject
         foreach(ClientObject client in _clients)
         {
             await client.Writer.WriteLineAsync(Commands.Stop.GetCommandValue());
-            client.Close();
+            client.Dispose();
         }  
-        _listener.Stop();
+        _listener.Dispose();
     }
 
     protected internal void RemoveConnection(string id)
@@ -132,11 +132,11 @@ class ServerObject
 
         if (client is not null) 
             _clients.Remove(client);
-        client?.Close();
+        client?.Dispose();
     }
     protected internal void RemoveConnection(ClientObject client)
     {
         _clients.Remove(client);
-        client?.Close();
+        client?.Dispose();
     }
 }

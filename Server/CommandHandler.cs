@@ -1,4 +1,4 @@
-﻿namespace Chat;
+﻿namespace Server;
 
 internal class CommandHandler
 {
