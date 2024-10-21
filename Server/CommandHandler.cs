@@ -23,13 +23,19 @@ internal class CommandHandler
             case Commands.ClientList:
                 await client.Writer.WriteLineAsync(client.GetServerClientsList());
                 break;
+            case Commands.CommandsList:
+                await HandleCommandsListCommandAsync(client);
+                break;
         };
     }
 
     private static async Task HandleServerCommand(Commands command, ServerObject server)
     {
         switch (command)
-        { 
+        {
+            case Commands.CommandsList:
+                await HandleCommandsListCommandAsync();
+                break;
             case Commands.Stop:
                 throw new Exception("Server was stopped");
             case Commands.Kick:
@@ -52,6 +58,19 @@ internal class CommandHandler
                 break;
         };
     }
+
+    private static async Task HandleCommandsListCommandAsync(ClientObject? client = null)
+    {
+        StringBuilder builder = new();
+        foreach (Commands commands in Enum.GetValues(typeof(Commands)))
+            builder.Append('|'+commands.GetCommandValue()+"\t\t"+commands.GetCommandAnnotation()+'\n');
+
+        if (client is null)
+            Console.WriteLine(builder.ToString());
+        else
+           await client.Writer.WriteLineAsync(builder.ToString());
+    }
+
     private static void HandleConnectedClientsListCommand(ServerObject server) => Console.WriteLine(server.GetClientsList());
 
     private static void HandleBannedClientsListCommand(ServerObject server)
