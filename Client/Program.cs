@@ -1,7 +1,9 @@
 ﻿using CommandsLib;
+using ConfigsLib;
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,14 +18,21 @@ internal class Program
 
     public static void Main(string[] args)
     {
-        string? host;
-        int port = 8888;
-
         try
         {
-            host = GetHostInput();
-           
-            nickname = GetNicknameInput();
+            ClientInfo? clientInfo;
+
+            using (FileStream fs = new("Client.config.json", FileMode.Open))
+            {
+                clientInfo = IInfo.FromJson<ClientInfo>(fs);
+            }
+
+            (nickname, string host, int port) = clientInfo;
+
+            if (string.IsNullOrEmpty(nickname)
+            || string.IsNullOrWhiteSpace(nickname)
+            || nickname.Equals("Admin"))
+                throw new Exception("Name can't take the values: null, “Admin”, empty string or consist only of spaces.");
 
             _client.Connect(host, port);
 
@@ -42,28 +51,6 @@ internal class Program
         {
             Exit();
         }
-    }
-    private static string GetHostInput() 
-    {
-        string? host;
-        do
-        {
-            Console.Write("Enter the host IP: ");
-            host = Console.ReadLine();
-            Console.Clear();
-        } while (string.IsNullOrEmpty(host) || string.IsNullOrWhiteSpace(host));
-        return host;
-    }
-    private static string GetNicknameInput() 
-    {
-        string? nickname;
-        do
-        {
-            Console.Clear();
-            Console.Write("Enter your nickname: ");
-            nickname = Console.ReadLine();
-        } while (string.IsNullOrEmpty(nickname) || string.IsNullOrWhiteSpace(nickname) || nickname.Equals("Admin"));
-        return nickname;
     }
 
     private static async Task SendMassageAsync(StreamWriter writer)

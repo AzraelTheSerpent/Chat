@@ -6,6 +6,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\CommandsLib\CommandsLib.csproj" />
+	  <ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -15,7 +16,7 @@
 		<Nullable>enable</Nullable>
 		<ApplicationIcon Condition="'$(Configuration)' == 'Release'">..\icons\chat.ico</ApplicationIcon>
 		<AssemblyName>Chat</AssemblyName>
-		<FileVersion>2.1</FileVersion>
+		<FileVersion>3.0</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -24,7 +25,6 @@
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>link</TrimMode>
 	</PropertyGroup>
 
 </Project>

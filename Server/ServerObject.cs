@@ -1,12 +1,22 @@
+using System.Text.Json;
+
 namespace Server;
 
 class ServerObject
 {
-    private readonly TcpListener _listener = new(IPAddress.Any, 8888);
+    private readonly TcpListener _listener;
     private readonly List<ClientObject> _clients = [];
     private readonly Dictionary<IPAddress, string> _bannedClients = [];
     internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
-
+    public ServerObject() 
+    {
+        ServerInfo serverInfo;
+        using (FileStream fs = new("Server.config.json", FileMode.Open))
+        {
+            serverInfo = IInfo.FromJson<ServerInfo>(fs);
+        }
+        _listener = new(IPAddress.Parse(serverInfo.IPAddress), serverInfo.Port);
+    }
     internal async Task ListenAsync()
     {
         try

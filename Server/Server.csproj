@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-	  <ProjectReference Include="..\CommandsLib\CommandsLib.csproj" />
+		<ProjectReference Include="..\CommandsLib\CommandsLib.csproj" />
+		<ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -10,7 +11,7 @@
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AssemblyName>Server</AssemblyName>
-		<FileVersion>2.1</FileVersion>
+		<FileVersion>3.0</FileVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -19,7 +20,6 @@
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<PublishReadyToRun>true</PublishReadyToRun>
 		<PublishTrimmed>true</PublishTrimmed>
-		<TrimMode>link</TrimMode>
 	</PropertyGroup>
 	
 </Project>
