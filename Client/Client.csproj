@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<ItemGroup>
-		<Content Include="..\icons\chat.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <ProjectReference Include="..\CommandsLib\CommandsLib.csproj" />
 	  <ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj" />
 	</ItemGroup>
@@ -14,7 +10,6 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<ApplicationIcon Condition="'$(Configuration)' == 'Release'">..\icons\chat.ico</ApplicationIcon>
 		<AssemblyName>Chat</AssemblyName>
 		<FileVersion>3.1</FileVersion>
 	</PropertyGroup>
