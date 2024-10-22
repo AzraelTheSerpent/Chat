@@ -5,6 +5,4 @@ namespace ConfigsLib;
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(ClientInfo))]
 [JsonSerializable(typeof(ServerInfo))]
-public partial class SourceGenerationContext : JsonSerializerContext
-{
-}
+public partial class SourceGenerationContext : JsonSerializerContext {}

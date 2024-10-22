@@ -10,12 +10,12 @@ class ServerObject
     internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
     public ServerObject() 
     {
-        ServerInfo serverInfo;
+        int port;
         using (FileStream fs = new("Server.config.json", FileMode.Open))
         {
-            serverInfo = IInfo.FromJson<ServerInfo>(fs);
+            (_, port) = IInfo.FromJson<ServerInfo>(fs);
         }
-        _listener = new(IPAddress.Parse(serverInfo.IPAddress), serverInfo.Port);
+        _listener = new(IPAddress.Any, port);
     }
     internal async Task ListenAsync()
     {

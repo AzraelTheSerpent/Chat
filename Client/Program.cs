@@ -3,6 +3,7 @@ using ConfigsLib;
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,8 +37,8 @@ internal class Program
 
             _client.Connect(host, port);
 
-            _reader = new StreamReader(_client.GetStream());
-            _writer = new StreamWriter(_client.GetStream());
+            _reader = new(_client.GetStream());
+            _writer = new(_client.GetStream());
 
             if (_reader is null || _writer is null) return;
 
@@ -133,6 +134,12 @@ internal class Program
                 break;
             case Commands.Ban:
                 Exit(0, "You've been banned by an admin");
+                break;
+            case Commands.CommandsList:
+                StringBuilder builder = new();
+                foreach (Commands commands in Enum.GetValues(typeof(Commands)))
+                    builder.Append('|' + commands.GetCommandValue() + "\t\t" + commands.GetCommandAnnotation() + '\n');
+                Console.WriteLine(builder.ToString());
                 break;
         }
     }
