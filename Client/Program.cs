@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -124,16 +123,16 @@ internal class Program
         switch (command) 
         {
             case Commands.Stop:
-                Exit(0, "Server was stopped");
+                Exit(message: "Server was stopped");
                 break;
             case Commands.Kick:
-                Exit(0, "You've been kicked by an admin");
+                Exit(message: "You've been kicked by an admin");
                 break;
             case Commands.Exit:
                 Exit();
                 break;
             case Commands.Ban:
-                Exit(0, "You've been banned by an admin");
+                Exit(message: "You've been banned by an admin");
                 break;
             case Commands.CommandsList:
                 StringBuilder builder = new();

@@ -1,9 +1,8 @@
 ﻿namespace Server;
 
-internal class CommandHandler
+internal class CommandHandler(object sender)
 {
-    private readonly object _sender;
-    public CommandHandler(object sender) => _sender = sender;
+    private readonly object _sender = sender;
 
     public async Task HandleCommand(Commands command) 
     {
