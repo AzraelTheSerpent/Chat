@@ -5,33 +5,32 @@ namespace CommandsLib;
 public enum Commands
 {
     Default,
-    [CommandValue("/cmd", "Show the list of commands")]
+    [CommandsSettings("/cmd", "Show the list of commands")]
     CommandsList,
-    [CommandValue("/stop", "Shutdown the server [For server admin only]")]
+    [CommandsSettings("/stop", "Shutdown the server [For server admin only]")]
     Stop,
-    [CommandValue("/kick", "Kick the user [For server admin only]")]
+    [CommandsSettings("/kick", "Kick the user [For server admin only]")]
     Kick,
-    [CommandValue("/msg", "Send message to users [For server admin only]")]
+    [CommandsSettings("/msg", "Send message to users [For server admin only]")]
     Massage,
-    [CommandValue("/exit", "Exit from the chat")]
+    [CommandsSettings("/exit", "Exit from the chat")]
     Exit,
-    [CommandValue("/ban", "Ban the user [For server admin only]")]
+    [CommandsSettings("/ban", "Ban the user [For server admin only]")]
     Ban,
-    [CommandValue("/unban", "Unban the user [For server admin only]")]
+    [CommandsSettings("/unban", "Unban the user [For server admin only]")]
     Unban,
-    [CommandValue("/clist", "Show the list of users")]
+    [CommandsSettings("/clist", "Show the list of users")]
     ClientList,
-    [CommandValue("/blist", "Show the list of banned users [For server admin only]")]
+    [CommandsSettings("/blist", "Show the list of banned users [For server admin only]")]
     BannedClientList
 }
 
 [AttributeUsage(AttributeTargets.Field)]
-public class CommandValueAttribute : Attribute
+public class CommandsSettingsAttribute(string command) : Attribute
 {
-    public string Value { get; private set; }
+    public string Value { get; private set; } = command;
     public string? Annotation { get; private set; } = null;
-    public CommandValueAttribute(string command) => Value = command;
-    public CommandValueAttribute(string command, string annotation) : 
+    public CommandsSettingsAttribute(string command, string annotation) : 
         this(command) => Annotation = annotation;
 }
 
@@ -42,7 +41,7 @@ public static class CommandEnumExtensions
         var attributes = command.GetType()?
             .GetField(command.ToString())?
             .GetCustomAttributes(false);
-        if (attributes?.Length > 0 && attributes[0] is CommandValueAttribute commandAttribute)
+        if (attributes?.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
             return commandAttribute.Value;
         return null;
     }
@@ -51,7 +50,7 @@ public static class CommandEnumExtensions
         var attributes = command.GetType()?
             .GetField(command.ToString())?
             .GetCustomAttributes(false);
-        if (attributes?.Length > 0 && attributes[0] is CommandValueAttribute commandAttribute)
+        if (attributes?.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
             return commandAttribute.Annotation;
         return null;
     }
@@ -61,7 +60,7 @@ public static class CommandEnumExtensions
         {
             var attributes = typeof(Commands).GetMember(command.ToString())[0].GetCustomAttributes(false);
 
-            if (attributes.Length > 0 && attributes[0] is CommandValueAttribute commandAttribute)
+            if (attributes.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
             if (commandAttribute.Value.Equals(input, StringComparison.OrdinalIgnoreCase))
                 return command;
         }
