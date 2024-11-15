@@ -34,7 +34,14 @@ class ServerObject
         }
         catch (Exception ex)
         {
+#if DEBUG
+            Console.WriteLine($"Source: {ex.Source}");
+            Console.WriteLine($"Exception: {ex.Message}");
+            Console.WriteLine($"Method: {ex.TargetSite}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+#else
             Console.WriteLine(ex.Message);
+#endif
         }
         finally
         {
@@ -58,7 +65,14 @@ class ServerObject
         }
         catch (Exception ex)
         {
+#if DEBUG
+            Console.WriteLine($"Source: {ex.Source}");
+            Console.WriteLine($"Exception: {ex.Message}");
+            Console.WriteLine($"Method: {ex.TargetSite}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+#else
             Console.WriteLine(ex.Message);
+#endif
         }
         finally
         {

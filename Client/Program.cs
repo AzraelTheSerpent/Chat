@@ -20,6 +20,9 @@ internal class Program
     {
         try
         {
+#if DEBUG
+            Console.WriteLine("DEBUG MODE");
+#endif
             ClientInfo? clientInfo;
 
             using (FileStream fs = new("Client.config.json", FileMode.Open))
@@ -40,12 +43,18 @@ internal class Program
             _writer = new(_client.GetStream());
 
             if (_reader is null || _writer is null) return;
-
             Task.WaitAny(ReceiveMessageAsync(_reader), SendMassageAsync(_writer));
         }
         catch (Exception ex)
         {
+#if DEBUG
+            Console.WriteLine($"Source: {ex.Source}");
+            Console.WriteLine($"Exception: {ex.Message}");
+            Console.WriteLine($"Method: {ex.TargetSite}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+#else
             Console.WriteLine(ex.Message);
+#endif
         }
         finally
         {
@@ -60,7 +69,6 @@ internal class Program
             writer.AutoFlush = true;
             await writer.WriteLineAsync(nickname);
 
-            Console.Clear();
             Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {nickname}");
             
             while (true)
@@ -81,7 +89,14 @@ internal class Program
         }
         catch (Exception ex)
         {
+#if DEBUG
+            Console.WriteLine($"Source: {ex.Source}");
+            Console.WriteLine($"Exception: {ex.Message}");
+            Console.WriteLine($"Method: {ex.TargetSite}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+#else
             Console.WriteLine(ex.Message);
+#endif
         }
     }
 
@@ -114,7 +129,14 @@ internal class Program
         }
         catch (Exception ex)
         {
+#if DEBUG
+            Console.WriteLine($"Source: {ex.Source}");
+            Console.WriteLine($"Exception: {ex.Message}");
+            Console.WriteLine($"Method: {ex.TargetSite}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+#else
             Console.WriteLine(ex.Message);
+#endif
         }
     }
     

@@ -40,7 +40,7 @@ internal class CommandHandler(object sender)
             case Commands.Kick:
                 await HandleKickCommand(server);
                 break;
-            case Commands.Massage:
+            case Commands.Message:
                 await HandleMessageCommand(server);
                 break;
             case Commands.Ban:

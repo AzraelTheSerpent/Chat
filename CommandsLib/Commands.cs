@@ -12,7 +12,7 @@ public enum Commands
     [CommandsSettings("/kick", "Kick the user [For server admin only]")]
     Kick,
     [CommandsSettings("/msg", "Send message to users [For server admin only]")]
-    Massage,
+    Message,
     [CommandsSettings("/exit", "Exit from the chat")]
     Exit,
     [CommandsSettings("/ban", "Ban the user [For server admin only]")]
@@ -33,12 +33,11 @@ public class CommandsSettingsAttribute(string command) : Attribute
     public CommandsSettingsAttribute(string command, string annotation) : 
         this(command) => Annotation = annotation;
 }
-
 public static class CommandEnumExtensions 
 {
     public static string? GetCommandValue(this Commands command) 
     {
-        var attributes = command.GetType()?
+        var attributes = typeof(Commands)?
             .GetField(command.ToString())?
             .GetCustomAttributes(false);
         if (attributes?.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
@@ -47,7 +46,7 @@ public static class CommandEnumExtensions
     }
     public static string? GetCommandAnnotation(this Commands command) 
     {
-        var attributes = command.GetType()?
+        var attributes = typeof(Commands)?
             .GetField(command.ToString())?
             .GetCustomAttributes(false);
         if (attributes?.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
