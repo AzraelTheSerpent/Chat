@@ -1,20 +1,34 @@
 namespace Server;
 
-class ServerObject
+internal class ServerObject : IDisposable
 {
-    private readonly TcpListener _listener;
-    private readonly List<ClientObject> _clients = [];
     private readonly Dictionary<IPAddress, string> _bannedClients = [];
+    private readonly List<ClientObject> _clients = [];
+    private readonly TcpListener _listener;
     internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
-    public ServerObject() 
+    
+    public ServerObject()
     {
         int port;
         using (FileStream fs = new("Server.config.json", FileMode.Open))
         {
             (_, port) = IInfo.FromJson<ServerInfo>(fs);
         }
+
         _listener = new(IPAddress.Any, port);
     }
+    
+    public void Dispose()
+    {
+        foreach (var client in _clients)
+        {
+            client.Writer.WriteLine(Commands.Stop.GetCommandValue());
+            client.Dispose();
+        }
+
+        _listener.Dispose();
+    }
+
     internal async Task ListenAsync()
     {
         try
@@ -24,28 +38,28 @@ class ServerObject
 
             while (true)
             {
-                TcpClient client = await _listener.AcceptTcpClientAsync();
+                var client = await _listener.AcceptTcpClientAsync();
 
                 ClientObject clientObject = new(client, this);
                 _clients.Add(clientObject);
 
-                Task tmpTask = clientObject.StartAsync();
+                _ = clientObject.StartAsync();
             }
         }
         catch (Exception ex)
         {
 #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}");
-            Console.WriteLine($"Exception: {ex.Message}");
-            Console.WriteLine($"Method: {ex.TargetSite}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            Console.WriteLine($"Source: {ex.Source}" +
+                              $"Exception: {ex.Message}" +
+                              $"Method: {ex.TargetSite}" +
+                              $"StackTrace: {ex.StackTrace}");
 #else
             Console.WriteLine(ex.Message);
 #endif
         }
         finally
         {
-            await Disconnect();
+            Dispose();
         }
     }
 
@@ -56,7 +70,7 @@ class ServerObject
             CommandHandler handler = new(this);
             while (true)
             {
-                string? command = Console.ReadLine();
+                var command = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(command)) continue;
 
@@ -66,20 +80,21 @@ class ServerObject
         catch (Exception ex)
         {
 #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}");
-            Console.WriteLine($"Exception: {ex.Message}");
-            Console.WriteLine($"Method: {ex.TargetSite}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            Console.WriteLine($"Source: {ex.Source}" +
+                              $"Exception: {ex.Message}" +
+                              $"Method: {ex.TargetSite}" +
+                              $"StackTrace: {ex.StackTrace}");
 #else
             Console.WriteLine(ex.Message);
 #endif
         }
         finally
         {
-            await Disconnect();
+            Dispose();
         }
     }
-    internal string GetClientsList() 
+
+    internal string GetClientsList()
     {
         StringBuilder builder = new();
         var clients = from client in _clients orderby client.Nickname, client.Id select client;
@@ -89,6 +104,7 @@ class ServerObject
 
         return builder.ToString();
     }
+
     protected internal async Task BroadcastMessageAsync(string message, string? id = null)
     {
         var disconnectedClients = new List<ClientObject>();
@@ -111,54 +127,38 @@ class ServerObject
             await BroadcastMessageAsync($"{nickname} left the chat");
         }
     }
+
     public async Task KickClient(string id)
     {
-        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
+        var client = _clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
         await client.Writer.WriteLineAsync(Commands.Kick.GetCommandValue());
 
         RemoveConnection(client);
     }
+
     public async Task BanClient(string id)
     {
-        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
-        if (client is null ||
-            client.IP is null ||
+        var client = _clients.FirstOrDefault(c => c.Id == id);
+        if (client?.Ip is null ||
             client.Nickname is null) return;
 
-        _bannedClients.Add(client.IP, client.Nickname);
+        _bannedClients.Add(client.Ip, client.Nickname);
         await client.Writer.WriteLineAsync(Commands.Ban.GetCommandValue());
 
         RemoveConnection(client);
     }
+
     public void UnbanClient(IPAddress? ipAddress)
     {
         if (ipAddress is null) return;
         _bannedClients.Remove(ipAddress);
     }
 
-    private async Task Disconnect()
-    {
-        foreach(ClientObject client in _clients)
-        {
-            await client.Writer.WriteLineAsync(Commands.Stop.GetCommandValue());
-            client.Dispose();
-        }  
-        _listener.Dispose();
-    }
-
-    protected internal void RemoveConnection(string id)
-    {
-        ClientObject? client = _clients.FirstOrDefault(c => c.Id == id);
-
-        if (client is not null) 
-            _clients.Remove(client);
-        client?.Dispose();
-    }
     protected internal void RemoveConnection(ClientObject client)
     {
         _clients.Remove(client);
-        client?.Dispose();
+        client.Dispose();
     }
 }

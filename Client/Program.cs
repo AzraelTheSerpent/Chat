@@ -1,20 +1,20 @@
-﻿using CommandsLib;
-using ConfigsLib;
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandsLib;
+using ConfigsLib;
 
 namespace Client;
 
-internal class Program
+internal static class Program
 {
-    private static readonly TcpClient _client = new();
-    private static StreamReader? _reader = null;
-    private static StreamWriter? _writer = null;
-    private static string? nickname;
+    private static readonly TcpClient Client = new();
+    private static StreamReader? _reader;
+    private static StreamWriter? _writer;
+    private static string? _nickname;
 
     public static void Main(string[] args)
     {
@@ -30,28 +30,27 @@ internal class Program
                 clientInfo = IInfo.FromJson<ClientInfo>(fs);
             }
 
-            (nickname, string host, int port) = clientInfo;
+            (_nickname, var host, var port) = clientInfo;
 
-            if (string.IsNullOrEmpty(nickname)
-            || string.IsNullOrWhiteSpace(nickname)
-            || nickname.Equals("Admin"))
-                throw new Exception("Name can't take the values: null, “Admin”, empty string or consist only of spaces.");
+            if (string.IsNullOrEmpty(_nickname)
+                || string.IsNullOrWhiteSpace(_nickname)
+                || _nickname.Equals("Admin"))
+                throw new("Name can't take the values: null, “Admin”, empty string or consist only of spaces.");
 
-            _client.Connect(host, port);
+            Client.Connect(host, port);
 
-            _reader = new(_client.GetStream());
-            _writer = new(_client.GetStream());
+            _reader = new(Client.GetStream());
+            _writer = new(Client.GetStream());
 
-            if (_reader is null || _writer is null) return;
             Task.WaitAny(ReceiveMessageAsync(_reader), SendMassageAsync(_writer));
         }
         catch (Exception ex)
         {
 #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}");
-            Console.WriteLine($"Exception: {ex.Message}");
-            Console.WriteLine($"Method: {ex.TargetSite}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            Console.WriteLine($"Source: {ex.Source}" +
+                              $"Exception: {ex.Message}" +
+                              $"Method: {ex.TargetSite}" +
+                              $"StackTrace: {ex.StackTrace}");
 #else
             Console.WriteLine(ex.Message);
 #endif
@@ -67,13 +66,13 @@ internal class Program
         try
         {
             writer.AutoFlush = true;
-            await writer.WriteLineAsync(nickname);
+            await writer.WriteLineAsync(_nickname);
 
-            Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {nickname}");
-            
+            Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {_nickname}");
+
             while (true)
             {
-                string? message = Console.ReadLine();
+                var message = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(message) || string.IsNullOrWhiteSpace(message))
                 {
@@ -90,10 +89,10 @@ internal class Program
         catch (Exception ex)
         {
 #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}");
-            Console.WriteLine($"Exception: {ex.Message}");
-            Console.WriteLine($"Method: {ex.TargetSite}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            Console.WriteLine($"Source: {ex.Source}" +
+                              $"Exception: {ex.Message}" +
+                              $"Method: {ex.TargetSite}" +
+                              $"StackTrace: {ex.StackTrace}");
 #else
             Console.WriteLine(ex.Message);
 #endif
@@ -106,13 +105,15 @@ internal class Program
         {
             while (true)
             {
-                string? message = await reader.ReadLineAsync();
+                var message = await reader.ReadLineAsync();
 
                 if (string.IsNullOrEmpty(message)) continue;
 
                 if (message[0] == '/')
+                {
                     CommandHandling(message.GetCommand());
-                else if(OperatingSystem.IsWindows())
+                }
+                else if (OperatingSystem.IsWindows())
                 {
                     var (left, top) = Console.GetCursorPosition();
 
@@ -130,19 +131,19 @@ internal class Program
         catch (Exception ex)
         {
 #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}");
-            Console.WriteLine($"Exception: {ex.Message}");
-            Console.WriteLine($"Method: {ex.TargetSite}");
-            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            Console.WriteLine($"Source: {ex.Source}" +
+                              $"Exception: {ex.Message}" +
+                              $"Method: {ex.TargetSite}" +
+                              $"StackTrace: {ex.StackTrace}");
 #else
             Console.WriteLine(ex.Message);
 #endif
         }
     }
-    
+
     private static void CommandHandling(Commands command)
     {
-        switch (command) 
+        switch (command)
         {
             case Commands.Stop:
                 Exit(message: "Server was stopped");
@@ -171,15 +172,15 @@ internal class Program
             Console.WriteLine(message);
 
         Console.WriteLine("The app will close in: ");
-        for (int i = 5; i != 0; i--)
+        for (var i = 5; i != 0; i--)
         {
             Console.Write($"{i}...\t");
             Thread.Sleep(1000);
         }
-        
+
         _writer?.Close();
         _reader?.Close();
-        _client.Close();
+        Client.Close();
 
         Environment.Exit(exitCode);
     }

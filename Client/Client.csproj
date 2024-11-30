@@ -1,25 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<ItemGroup>
-	  <ProjectReference Include="..\CommandsLib\CommandsLib.csproj" />
-	  <ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj" />
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\CommandsLib\CommandsLib.csproj"/>
+        <ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj"/>
+    </ItemGroup>
 
-	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<TargetFramework>net8.0</TargetFramework>
-		<ImplicitUsings>disable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<AssemblyName>Chat</AssemblyName>
-		<FileVersion>3.1.1</FileVersion>
-	</PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>Chat</AssemblyName>
+        <FileVersion>3.1.2</FileVersion>
+    </PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
-		<PublishSingleFile>true</PublishSingleFile>
-		<SelfContained>true</SelfContained>
-		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-		<PublishReadyToRun>true</PublishReadyToRun>
-		<PublishTrimmed>true</PublishTrimmed>
-	</PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishTrimmed>true</PublishTrimmed>
+    </PropertyGroup>
 
 </Project>

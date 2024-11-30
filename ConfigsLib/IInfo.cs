@@ -14,6 +14,7 @@ public interface IInfo
 
         return JsonSerializer.Serialize(info, typeof(T), options);
     }
+
     [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
     public static T FromJson<T>(string json, JsonSerializerOptions? options = null)
         where T : class, IInfo
@@ -23,6 +24,7 @@ public interface IInfo
 
         return JsonSerializer.Deserialize<T>(json, options) ?? throw new JsonException("Deserialization error");
     }
+
     [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
     public static T FromJson<T>(FileStream fs, JsonSerializerOptions? options = null)
         where T : class, IInfo

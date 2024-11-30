@@ -2,30 +2,35 @@
 
 internal class CommandHandler(object sender)
 {
-    private readonly object _sender = sender;
-
-    public async Task HandleCommand(Commands command) 
+    public async Task HandleCommand(Commands command)
     {
-        if (_sender is ServerObject server)
-            await HandleServerCommand(command, server);
-        else if(_sender is ClientObject client)
-            await HandleClientCommand(command, client);
+        switch (sender)
+        {
+            case ServerObject server:
+                await HandleServerCommand(command, server);
+                break;
+            case ClientObject client:
+                await HandleClientCommand(command, client);
+                break;
+        }
     }
 
     private static async Task HandleClientCommand(Commands command, ClientObject client)
     {
-        switch (command) 
+        switch (command)
         {
             case Commands.Exit:
                 await client.Writer.WriteLineAsync(command.GetCommandValue());
-                throw new Exception();
+                throw new();
             case Commands.ClientList:
                 await client.Writer.WriteLineAsync(client.GetServerClientsList());
                 break;
             case Commands.CommandsList:
                 await client.Writer.WriteLineAsync(command.GetCommandValue());
                 break;
-        };
+            default:
+                throw new ArgumentOutOfRangeException(nameof(command), command, null);
+        }
     }
 
     private static async Task HandleServerCommand(Commands command, ServerObject server)
@@ -36,7 +41,7 @@ internal class CommandHandler(object sender)
                 HandleCommandsListCommandAsync();
                 break;
             case Commands.Stop:
-                throw new Exception("Server was stopped");
+                throw new("Server was stopped");
             case Commands.Kick:
                 await HandleKickCommand(server);
                 break;
@@ -55,14 +60,16 @@ internal class CommandHandler(object sender)
             case Commands.BannedClientList:
                 HandleBannedClientsListCommand(server);
                 break;
-        };
+            default:
+                throw new ArgumentOutOfRangeException(nameof(command), command, null);
+        }
     }
 
     private static void HandleCommandsListCommandAsync()
     {
         StringBuilder builder = new();
         foreach (Commands commands in Enum.GetValues(typeof(Commands)))
-            builder.Append('|'+commands.GetCommandValue()+"\t\t"+commands.GetCommandAnnotation()+'\n');
+            builder.Append('|' + commands.GetCommandValue() + "\t\t" + commands.GetCommandAnnotation() + '\n');
         Console.WriteLine(builder.ToString());
     }
 
@@ -81,7 +88,7 @@ internal class CommandHandler(object sender)
 
     private static async Task HandleBanCommand(ServerObject server)
     {
-        HandleInput("Id of user to ban: ", out string? id);
+        HandleInput("Id of user to ban: ", out var id);
 
         if (string.IsNullOrEmpty(id)) return;
 
@@ -90,17 +97,17 @@ internal class CommandHandler(object sender)
 
     private static void HandleUnbanCommand(ServerObject server)
     {
-        HandleInput("IP of user to unban: ", out string? ip);
+        HandleInput("IP of user to unban: ", out var ip);
 
         if (string.IsNullOrEmpty(ip)) return;
 
-        if (IPAddress.TryParse(ip, out IPAddress? address))
+        if (IPAddress.TryParse(ip, out var address))
             server.UnbanClient(address);
     }
 
     private static async Task HandleMessageCommand(ServerObject server)
     {
-        HandleInput("Enter the message: ", out string? message);
+        HandleInput("Enter the message: ", out var message);
 
         if (string.IsNullOrEmpty(message)) return;
 
@@ -110,12 +117,13 @@ internal class CommandHandler(object sender)
 
     private static async Task HandleKickCommand(ServerObject server)
     {
-        HandleInput("Id of user to kick: ", out string? id);
+        HandleInput("Id of user to kick: ", out var id);
 
         if (string.IsNullOrEmpty(id)) return;
 
         await server.KickClient(id);
     }
+
     private static void HandleInput(string message, out string? input)
     {
         Console.Write(message);

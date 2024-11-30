@@ -10,15 +10,12 @@ public record ClientInfo(string Name, ServerInfo Host) : IInfo
         (ip, port) = Host;
     }
 }
-public record ServerInfo(string IPAddress, int Port) : IInfo
-{
-    [JsonInclude]
-    public string IPAddress { get; init; } = IPAddress;
-    public int Port { get; init; } = Port;
 
+public record ServerInfo([property: JsonInclude] string IpAddress, int Port) : IInfo
+{
     public void Deconstruct(out string ip, out int port)
     {
-        ip = IPAddress;
+        ip = IpAddress;
         port = Port;
     }
 }

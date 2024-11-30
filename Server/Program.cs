@@ -1,8 +1,8 @@
 ﻿namespace Server;
 
-class Program
+internal static class Program
 {
-    static void Main(string[] args)
+    public static void Main(string[] args)
     {
         ServerObject server = new();
 #if DEBUG
