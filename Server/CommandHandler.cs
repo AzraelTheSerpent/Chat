@@ -28,8 +28,6 @@ internal class CommandHandler(object sender)
             case Commands.CommandsList:
                 await client.Writer.WriteLineAsync(command.GetCommandValue());
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(command), command, null);
         }
     }
 
@@ -60,8 +58,6 @@ internal class CommandHandler(object sender)
             case Commands.BannedClientList:
                 HandleBannedClientsListCommand(server);
                 break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(command), command, null);
         }
     }
 
