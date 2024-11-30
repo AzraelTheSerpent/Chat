@@ -5,8 +5,7 @@ internal class ServerObject : IDisposable
     private readonly Dictionary<IPAddress, string> _bannedClients = [];
     private readonly List<ClientObject> _clients = [];
     private readonly TcpListener _listener;
-    internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
-    
+
     public ServerObject()
     {
         int port;
@@ -17,7 +16,9 @@ internal class ServerObject : IDisposable
 
         _listener = new(IPAddress.Any, port);
     }
-    
+
+    internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
+
     public void Dispose()
     {
         foreach (var client in _clients)

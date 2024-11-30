@@ -6,12 +6,7 @@ internal class ClientObject : IDisposable
     private readonly CommandHandler _handler;
     private readonly ServerObject _server;
     private bool _clientIsLive;
-    internal string Id { get; } = Guid.NewGuid().ToString();
-    internal string? Nickname { get; private set; }
-    internal IPAddress? Ip { get; }
-    internal StreamWriter Writer { get; }
-    private StreamReader Reader { get; }
-    
+
     public ClientObject(TcpClient client, ServerObject server)
     {
         _clientIsLive = true;
@@ -32,7 +27,13 @@ internal class ClientObject : IDisposable
         };
         Reader = new(stream);
     }
-    
+
+    internal string Id { get; } = Guid.NewGuid().ToString();
+    internal string? Nickname { get; private set; }
+    internal IPAddress? Ip { get; }
+    internal StreamWriter Writer { get; }
+    private StreamReader Reader { get; }
+
     public void Dispose()
     {
         _clientIsLive = false;

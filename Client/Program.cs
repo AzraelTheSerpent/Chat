@@ -110,9 +110,7 @@ internal static class Program
                 if (string.IsNullOrEmpty(message)) continue;
 
                 if (message[0] == '/')
-                {
                     CommandHandling(message.GetCommand());
-                }
                 else if (OperatingSystem.IsWindows())
                 {
                     var (left, top) = Console.GetCursorPosition();
