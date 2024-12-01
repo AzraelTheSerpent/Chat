@@ -1,0 +1,7 @@
+﻿{
+  "Name": "Anon",
+  "Host": {
+    "IpAddress": "127.0.0.1",
+    "Port": 8888
+  }
+}
