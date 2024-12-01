@@ -141,6 +141,7 @@ internal static class Program
 
     private static void CommandHandling(Commands command)
     {
+        // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
         switch (command)
         {
             case Commands.Stop:

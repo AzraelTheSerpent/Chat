@@ -1,18 +1,17 @@
-﻿namespace Server;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace Server;
+
+[SuppressMessage("ReSharper", "SwitchStatementMissingSomeEnumCasesNoDefault")]
 internal class CommandHandler(object sender)
 {
     public async Task HandleCommand(Commands command)
     {
-        switch (sender)
-        {
-            case ServerObject server:
-                await HandleServerCommand(command, server);
-                break;
-            case ClientObject client:
-                await HandleClientCommand(command, client);
-                break;
-        }
+        // ReSharper disable once ConvertIfStatementToSwitchStatement
+        if (sender is ServerObject server)
+            await HandleServerCommand(command, server);
+        else if (sender is ClientObject client) 
+            await HandleClientCommand(command, client);
     }
 
     private static async Task HandleClientCommand(Commands command, ClientObject client)
