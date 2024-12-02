@@ -10,7 +10,7 @@ internal class CommandHandler(object sender)
         // ReSharper disable once ConvertIfStatementToSwitchStatement
         if (sender is ServerObject server)
             await HandleServerCommand(command, server);
-        else if (sender is ClientObject client) 
+        else if (sender is ClientObject client)
             await HandleClientCommand(command, client);
     }
 

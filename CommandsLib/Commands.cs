@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CommandsLib;
+﻿namespace CommandsLib;
 
 public enum Commands
 {
@@ -23,51 +21,4 @@ public enum Commands
     ClientList,
     [CommandsSettings("/blist", "Show the list of banned users [For server admin only]")]
     BannedClientList
-}
-
-[AttributeUsage(AttributeTargets.Field)]
-public class CommandsSettingsAttribute(string command) : Attribute
-{
-    public CommandsSettingsAttribute(string command, string annotation) :
-        this(command) => Annotation = annotation;
-
-    public string Value { get; } = command;
-    public string? Annotation { get; }
-}
-
-public static class CommandEnumExtensions
-{
-    public static string? GetCommandValue(this Commands command)
-    {
-        var attributes = typeof(Commands)
-            .GetField(command.ToString())?
-            .GetCustomAttributes(false);
-        if (attributes?.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
-            return commandAttribute.Value;
-        return null;
-    }
-
-    public static string? GetCommandAnnotation(this Commands command)
-    {
-        var attributes = typeof(Commands)
-            .GetField(command.ToString())?
-            .GetCustomAttributes(false);
-        if (attributes?.Length > 0 && attributes[0] is CommandsSettingsAttribute commandAttribute)
-            return commandAttribute.Annotation;
-        return null;
-    }
-
-    public static Commands GetCommand(this string input)
-    {
-        foreach (Commands command in Enum.GetValues(typeof(Commands)))
-        {
-            var attributes = typeof(Commands).GetMember(command.ToString())[0].GetCustomAttributes(false);
-
-            if (attributes.Length <= 0 || attributes[0] is not CommandsSettingsAttribute commandAttribute) continue;
-            if (commandAttribute.Value.Equals(input, StringComparison.OrdinalIgnoreCase))
-                return command;
-        }
-
-        return Commands.Default;
-    }
 }

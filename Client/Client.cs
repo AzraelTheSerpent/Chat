@@ -1,0 +1,122 @@
+﻿using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using CommandsLib;
+using ConfigsLib;
+
+namespace Client;
+
+internal class Client
+{
+    private readonly string _nickname;
+    internal readonly TcpClient TcpClient = new();
+
+    public Client(string configPath)
+    {
+        ClientInfo? clientInfo;
+
+        using (FileStream fs = new(configPath, FileMode.Open))
+        {
+            clientInfo = IInfo.FromJson<ClientInfo>(fs);
+        }
+
+        (_nickname, var host, var port) = clientInfo;
+
+        if (string.IsNullOrEmpty(_nickname)
+            || string.IsNullOrWhiteSpace(_nickname)
+            || _nickname.Equals("Admin"))
+            throw new("Name can't take the values: null, “Admin”, empty string or consist only of spaces.");
+
+        TcpClient.Connect(host, port);
+
+        
+        Writer = new(TcpClient.GetStream())
+        {
+            AutoFlush = true
+        };
+        Reader = new(TcpClient.GetStream());
+    }
+
+    internal StreamReader? Reader { get; }
+    internal StreamWriter? Writer { get; }
+
+    internal void Start() => Task.WaitAny(ReceiveMessageAsync(), SendMassageAsync());
+
+    private async Task SendMassageAsync()
+    {
+        try
+        {
+            await Writer!.WriteLineAsync(_nickname);
+
+            Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {_nickname}");
+
+            while (true)
+            {
+                var message = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(message) || string.IsNullOrWhiteSpace(message))
+                {
+                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                    continue;
+                }
+
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.WriteLine($"You: {message}");
+
+                await Writer.WriteLineAsync(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            #if DEBUG
+                Console.WriteLine($"Source: {ex.Source}" +
+                                  $"Exception: {ex.Message}" +
+                                  $"Method: {ex.TargetSite}" +
+                                  $"StackTrace: {ex.StackTrace}");
+            #else
+                Console.WriteLine(ex.Message);
+            #endif
+        }
+    }
+
+    private async Task ReceiveMessageAsync()
+    {
+        try
+        {
+            while (true)
+            {
+                var message = await Reader!.ReadLineAsync();
+
+                if (string.IsNullOrEmpty(message)) continue;
+
+                if (message[0] == '/')
+                    CommandHandler.CommandHandling(message.GetCommand());
+                else if (OperatingSystem.IsWindows())
+                {
+                    var (left, top) = Console.GetCursorPosition();
+
+                    Console.MoveBufferArea(0, top, left, 1, 0, top + 1);
+
+                    Console.SetCursorPosition(0, top);
+                    Console.WriteLine(message);
+
+                    Console.SetCursorPosition(left, top + 1);
+                }
+                else
+                    Console.WriteLine(message);
+            }
+        }
+        catch (Exception ex)
+        {
+            #if DEBUG
+                Console.WriteLine($"Source: {ex.Source}" +
+                                  $"Exception: {ex.Message}" +
+                                  $"Method: {ex.TargetSite}" +
+                                  $"StackTrace: {ex.StackTrace}");
+            #else
+                Console.WriteLine(ex.Message);
+            #endif
+        }
+    }
+}

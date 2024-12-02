@@ -49,14 +49,14 @@ internal class ServerObject : IDisposable
         }
         catch (Exception ex)
         {
-#if DEBUG
-            Console.WriteLine($"Source: {ex.Source}" +
-                              $"Exception: {ex.Message}" +
-                              $"Method: {ex.TargetSite}" +
-                              $"StackTrace: {ex.StackTrace}");
-#else
-            Console.WriteLine(ex.Message);
-#endif
+            #if DEBUG
+                Console.WriteLine($"Source: {ex.Source}" +
+                                  $"Exception: {ex.Message}" +
+                                  $"Method: {ex.TargetSite}" +
+                                  $"StackTrace: {ex.StackTrace}");
+            #else
+                Console.WriteLine(ex.Message);
+            #endif
         }
         finally
         {
@@ -80,14 +80,14 @@ internal class ServerObject : IDisposable
         }
         catch (Exception ex)
         {
-#if DEBUG
-            Console.WriteLine($"Source: {ex.Source}" +
-                              $"Exception: {ex.Message}" +
-                              $"Method: {ex.TargetSite}" +
-                              $"StackTrace: {ex.StackTrace}");
-#else
-            Console.WriteLine(ex.Message);
-#endif
+            #if DEBUG
+                Console.WriteLine($"Source: {ex.Source}" +
+                                  $"Exception: {ex.Message}" +
+                                  $"Method: {ex.TargetSite}" +
+                                  $"StackTrace: {ex.StackTrace}");
+            #else
+                Console.WriteLine(ex.Message);
+            #endif
         }
         finally
         {
