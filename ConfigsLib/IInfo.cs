@@ -9,18 +9,22 @@ public interface IInfo
     public static string ToJson<T>(T info, JsonSerializerOptions? options = null)
         where T : class, IInfo
     {
-        options ??= new();
-        options.TypeInfoResolver = new SourceGenerationContext();
+        options ??= new()
+        {
+            TypeInfoResolver = new SourceGenerationContext()
+        };
 
-        return JsonSerializer.Serialize(info, typeof(T), options);
+        return JsonSerializer.Serialize(info, options);
     }
 
     [RequiresUnreferencedCode("Use 'MethodFriendlyToTrimming' instead")]
     public static T FromJson<T>(string json, JsonSerializerOptions? options = null)
         where T : class, IInfo
     {
-        options ??= new();
-        options.TypeInfoResolver = new SourceGenerationContext();
+        options ??= new()
+        {
+            TypeInfoResolver = new SourceGenerationContext()
+        };
 
         return JsonSerializer.Deserialize<T>(json, options) ?? throw new JsonException("Deserialization error");
     }
@@ -29,8 +33,10 @@ public interface IInfo
     public static T FromJson<T>(FileStream fs, JsonSerializerOptions? options = null)
         where T : class, IInfo
     {
-        options ??= new();
-        options.TypeInfoResolver = new SourceGenerationContext();
+        options ??= new()
+        {
+            TypeInfoResolver = new SourceGenerationContext()
+        };
 
         return JsonSerializer.Deserialize<T>(fs, options) ?? throw new JsonException("Deserialization error");
     }
