@@ -11,28 +11,27 @@ internal static class Program
     {
         try
         {
-            #if DEBUG
-                Console.WriteLine("DEBUG MODE");
-            #endif
+        #if DEBUG
+            Console.WriteLine("DEBUG MODE");
+        #endif
             _client = new("Client.config.json");
             _client.Start();
         }
         catch (Exception ex)
         {
-            #if DEBUG
-                Console.WriteLine($"Source: {ex.Source}" +
-                                  $"Exception: {ex.Message}" +
-                                  $"Method: {ex.TargetSite}" +
-                                  $"StackTrace: {ex.StackTrace}");
-            #else
-                Console.WriteLine(ex.Message);
-            #endif
+        #if DEBUG
+            Console.WriteLine($"Source: {ex.Source}\n" +
+                              $"Exception: {ex.Message}\n" +
+                              $"Method: {ex.TargetSite}\n" +
+                              $"StackTrace: {ex.StackTrace}\n");
+        #else
+            Console.WriteLine(ex.Message);
+        #endif
         }
         finally
         {
             Exit();
         }
-
     }
 
     internal static void Exit(int exitCode = 0, string? message = null)
@@ -47,9 +46,9 @@ internal static class Program
             Thread.Sleep(1000);
         }
 
-        _client?.Writer?.Close();
-        _client?.Reader?.Close();
-        _client?.TcpClient.Close();
+        _client?.Writer?.Dispose();
+        _client?.Reader?.Dispose();
+        _client?.TcpClient.Dispose();
 
         Environment.Exit(exitCode);
     }

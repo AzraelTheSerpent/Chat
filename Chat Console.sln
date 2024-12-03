@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandsLib", "CommandsLib\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigsLib", "ConfigsLib\ConfigsLib.csproj", "{332BEFD9-4B3A-4725-835D-4A3700C179BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandsLib.Tests", "CommandsLib.Tests\CommandsLib.Tests.csproj", "{EE0FD545-A3F0-4117-8CB1-8218C657C7D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigsLib.Tests", "ConfigsLib.Tests\ConfigsLib.Tests.csproj", "{13638042-3300-41C7-92AA-8E7A9E58FD6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{332BEFD9-4B3A-4725-835D-4A3700C179BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{332BEFD9-4B3A-4725-835D-4A3700C179BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{332BEFD9-4B3A-4725-835D-4A3700C179BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE0FD545-A3F0-4117-8CB1-8218C657C7D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE0FD545-A3F0-4117-8CB1-8218C657C7D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE0FD545-A3F0-4117-8CB1-8218C657C7D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE0FD545-A3F0-4117-8CB1-8218C657C7D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

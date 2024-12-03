@@ -30,7 +30,6 @@ internal class Client
 
         TcpClient.Connect(host, port);
 
-        
         Writer = new(TcpClient.GetStream())
         {
             AutoFlush = true
@@ -69,14 +68,14 @@ internal class Client
         }
         catch (Exception ex)
         {
-            #if DEBUG
-                Console.WriteLine($"Source: {ex.Source}" +
-                                  $"Exception: {ex.Message}" +
-                                  $"Method: {ex.TargetSite}" +
-                                  $"StackTrace: {ex.StackTrace}");
-            #else
-                Console.WriteLine(ex.Message);
-            #endif
+        #if DEBUG
+            Console.WriteLine($"Source: {ex.Source}\n" +
+                              $"Exception: {ex.Message}\n" +
+                              $"Method: {ex.TargetSite}\n" +
+                              $"StackTrace: {ex.StackTrace}\n");
+        #else
+            Console.WriteLine(ex.Message);
+        #endif
         }
     }
 
@@ -109,14 +108,14 @@ internal class Client
         }
         catch (Exception ex)
         {
-            #if DEBUG
-                Console.WriteLine($"Source: {ex.Source}" +
-                                  $"Exception: {ex.Message}" +
-                                  $"Method: {ex.TargetSite}" +
-                                  $"StackTrace: {ex.StackTrace}");
-            #else
-                Console.WriteLine(ex.Message);
-            #endif
+        #if DEBUG
+            Console.WriteLine($"Source: {ex.Source}\n" +
+                              $"Exception: {ex.Message}\n" +
+                              $"Method: {ex.TargetSite}\n" +
+                              $"StackTrace: {ex.StackTrace}\n");
+        #else
+            Console.WriteLine(ex.Message);
+        #endif
         }
     }
 }
