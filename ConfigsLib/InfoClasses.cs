@@ -7,11 +7,8 @@ public record ClientInfo(
     [property: JsonPropertyName("host")] ServerInfo ServerInfo
 ) : IInfo
 {
-    public void Deconstruct(out string name, out string ip, out int port)
-    {
-        name = Name;
-        (ip, port) = ServerInfo;
-    }
+    public void Deconstruct(out string name, out string ip, out int port) =>
+        (name, (ip, port)) = (Name, ServerInfo);
 }
 
 public record ServerInfo(
@@ -21,9 +18,6 @@ public record ServerInfo(
     [property: JsonPropertyName("port")] int Port
 ) : IInfo
 {
-    public void Deconstruct(out string ip, out int port)
-    {
-        ip = IpAddress;
-        port = Port;
-    }
+    public void Deconstruct(out string ip, out int port) =>
+        (ip, port) = (IpAddress, Port);
 }
