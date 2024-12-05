@@ -10,17 +10,17 @@ public class InfoTest
 {
     private const string ClientJson = """
                                       {
-                                        "Name": "Anon",
-                                        "Host": {
-                                          "IpAddress": "127.0.0.1",
-                                          "Port": 8888
+                                        "name": "Anon",
+                                        "host": {
+                                          "ipAddress": "127.0.0.1",
+                                          "port": 8888
                                         }
                                       }
                                       """;
     private const string ServerJson = """
                                       {
-                                        "IpAddress": "127.0.0.1",
-                                        "Port": 8888
+                                        "ipAddress": "127.0.0.1",
+                                        "port": 8888
                                       }
                                       """;
     private readonly ClientInfo _clientInfo = new("Anon", new("127.0.0.1", 8888));
