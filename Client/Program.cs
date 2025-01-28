@@ -14,8 +14,7 @@ internal static class Program
         #if DEBUG
             Console.WriteLine("DEBUG MODE");
         #endif
-            _client = new("Client.config.json");
-            _client.Start();
+            _client = new("Client.config.json", true);
         }
         catch (Exception ex)
         {
@@ -46,8 +45,8 @@ internal static class Program
             Thread.Sleep(1000);
         }
 
-        _client?.Writer?.Dispose();
-        _client?.Reader?.Dispose();
+        _client?.Writer.Dispose();
+        _client?.Reader.Dispose();
         _client?.TcpClient.Dispose();
 
         Environment.Exit(exitCode);

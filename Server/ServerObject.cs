@@ -6,13 +6,9 @@ internal class ServerObject : IDisposable
     private readonly List<ClientObject> _clients = [];
     private readonly TcpListener _listener;
 
-    public ServerObject()
+    public ServerObject(string pathToConfigFile)
     {
-        int port;
-        using (FileStream fs = new("Server.config.json", FileMode.Open))
-        {
-            (_, port) = IInfo.FromJson<ServerInfo>(fs);
-        }
+        var port = GetPortFromConfig(pathToConfigFile);
 
         _listener = new(IPAddress.Any, port);
     }
@@ -28,6 +24,12 @@ internal class ServerObject : IDisposable
         }
 
         _listener.Dispose();
+    }
+
+    private static int GetPortFromConfig(string pathToConfig)
+    {
+        using FileStream fs = new(pathToConfig, FileMode.OpenOrCreate);
+        return IInfo.FromJson<ServerInfo>(fs).Port;
     }
 
     internal async Task ListenAsync()

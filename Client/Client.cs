@@ -12,14 +12,9 @@ internal class Client
     private readonly string _nickname;
     internal readonly TcpClient TcpClient = new();
 
-    public Client(string configPath)
+    public Client(string configPath, bool start = false)
     {
-        ClientInfo? clientInfo;
-
-        using (FileStream fs = new(configPath, FileMode.Open))
-        {
-            clientInfo = IInfo.FromJson<ClientInfo>(fs);
-        }
+        var clientInfo = GetClientInfoFromConfig(configPath);
 
         (_nickname, var host, var port) = clientInfo;
 
@@ -35,10 +30,20 @@ internal class Client
             AutoFlush = true
         };
         Reader = new(TcpClient.GetStream());
+
+        if (start) Start();
     }
 
-    internal StreamReader? Reader { get; }
-    internal StreamWriter? Writer { get; }
+    internal StreamReader Reader { get; }
+    internal StreamWriter Writer { get; }
+
+    private static ClientInfo GetClientInfoFromConfig(string configPath)
+    {
+        using FileStream fs = new(configPath, FileMode.OpenOrCreate);
+        var clientInfo = IInfo.FromJson<ClientInfo>(fs);
+
+        return clientInfo;
+    }
 
     internal void Start() => Task.WaitAny(ReceiveMessageAsync(), SendMassageAsync());
 
@@ -46,7 +51,7 @@ internal class Client
     {
         try
         {
-            await Writer!.WriteLineAsync(_nickname);
+            await Writer.WriteLineAsync(_nickname);
 
             Console.WriteLine(new string('#', Console.WindowWidth) + $"\nWelcome, {_nickname}");
 
@@ -85,7 +90,7 @@ internal class Client
         {
             while (true)
             {
-                var message = await Reader!.ReadLineAsync();
+                var message = await Reader.ReadLineAsync();
 
                 if (string.IsNullOrEmpty(message)) continue;
 
