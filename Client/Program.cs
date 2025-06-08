@@ -18,19 +18,24 @@ internal static class Program
         }
         catch (Exception ex)
         {
-        #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}\n" +
-                              $"Exception: {ex.Message}\n" +
-                              $"Method: {ex.TargetSite}\n" +
-                              $"StackTrace: {ex.StackTrace}\n");
-        #else
-            Console.WriteLine(ex.Message);
-        #endif
+            ExceptionMessage(ex);
         }
         finally
         {
             Exit();
         }
+    }
+
+    private static void ExceptionMessage(Exception ex)
+    {
+    #if DEBUG
+        Console.WriteLine($"Source: {ex.Source}\n" +
+                          $"Exception: {ex.Message}\n" +
+                          $"Method: {ex.TargetSite}\n" +
+                          $"StackTrace: {ex.StackTrace}\n");
+    #else
+            Console.WriteLine(ex.Message);
+    #endif
     }
 
     internal static void Exit(int exitCode = 0, string? message = null)

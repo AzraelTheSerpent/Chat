@@ -16,7 +16,7 @@ internal class Client
     {
         var clientInfo = GetClientInfoFromConfig(configPath);
 
-        (_nickname, var host, var port) = clientInfo;
+        (_nickname, var (host, port)) = clientInfo;
 
         if (string.IsNullOrEmpty(_nickname)
             || string.IsNullOrWhiteSpace(_nickname)
@@ -73,14 +73,7 @@ internal class Client
         }
         catch (Exception ex)
         {
-        #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}\n" +
-                              $"Exception: {ex.Message}\n" +
-                              $"Method: {ex.TargetSite}\n" +
-                              $"StackTrace: {ex.StackTrace}\n");
-        #else
-            Console.WriteLine(ex.Message);
-        #endif
+            ExceptionMessage(ex);
         }
     }
 
@@ -113,14 +106,19 @@ internal class Client
         }
         catch (Exception ex)
         {
-        #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}\n" +
-                              $"Exception: {ex.Message}\n" +
-                              $"Method: {ex.TargetSite}\n" +
-                              $"StackTrace: {ex.StackTrace}\n");
-        #else
-            Console.WriteLine(ex.Message);
-        #endif
+            ExceptionMessage(ex);
         }
+    }
+
+    private static void ExceptionMessage(Exception ex)
+    {
+    #if DEBUG
+        Console.WriteLine($"Source: {ex.Source}\n" +
+                          $"Exception: {ex.Message}\n" +
+                          $"Method: {ex.TargetSite}\n" +
+                          $"StackTrace: {ex.StackTrace}\n");
+    #else
+        Console.WriteLine(ex.Message);
+    #endif
     }
 }

@@ -51,19 +51,24 @@ internal class ServerObject : IDisposable
         }
         catch (Exception ex)
         {
-        #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}\n" +
-                              $"Exception: {ex.Message}\n" +
-                              $"Method: {ex.TargetSite}\n" +
-                              $"StackTrace: {ex.StackTrace}\n");
-        #else
-            Console.WriteLine(ex.Message);
-        #endif
+            ExceptionMessage(ex);
         }
         finally
         {
             Dispose();
         }
+    }
+
+    private static void ExceptionMessage(Exception ex)
+    {
+    #if DEBUG
+        Console.WriteLine($"Source: {ex.Source}\n" +
+                          $"Exception: {ex.Message}\n" +
+                          $"Method: {ex.TargetSite}\n" +
+                          $"StackTrace: {ex.StackTrace}\n");
+    #else
+        Console.WriteLine(ex.Message);
+    #endif
     }
 
     internal async Task ManageAsync()
@@ -82,14 +87,7 @@ internal class ServerObject : IDisposable
         }
         catch (Exception ex)
         {
-        #if DEBUG
-            Console.WriteLine($"Source: {ex.Source}\n" +
-                              $"Exception: {ex.Message}\n" +
-                              $"Method: {ex.TargetSite}\n" +
-                              $"StackTrace: {ex.StackTrace}\n");
-        #else
-            Console.WriteLine(ex.Message);
-        #endif
+            ExceptionMessage(ex);
         }
         finally
         {
@@ -100,7 +98,10 @@ internal class ServerObject : IDisposable
     internal string GetClientsList()
     {
         StringBuilder builder = new();
-        var clients = from client in _clients orderby client.Nickname, client.Id select client;
+        var clients = 
+            from client in _clients 
+            orderby client.Nickname, client.Id 
+            select client;
 
         foreach (var c in clients)
             builder.Append($"NickName:\t{c.Nickname}\tId:\t{c.Id}\n");
@@ -110,8 +111,9 @@ internal class ServerObject : IDisposable
 
     protected internal async Task BroadcastMessageAsync(string message, string? id = null)
     {
-        var disconnectedClients = new List<ClientObject>();
-        foreach (var client in _clients)
+        var disconnectedClients = new ConcurrentBag<ClientObject>();
+        await Parallel.ForEachAsync(_clients, async (client, _) =>
+        {
             try
             {
                 if (client.Id != id)
@@ -121,14 +123,18 @@ internal class ServerObject : IDisposable
             {
                 disconnectedClients.Add(client);
             }
-
+        });
+        
+        var disconnectedClientsNickname = 
+            from client in disconnectedClients select client.Nickname;
+        
         foreach (var client in disconnectedClients)
-        {
-            _clients.Remove(client);
-            var nickname = client.Nickname;
             RemoveConnection(client);
+            
+        await Parallel.ForEachAsync(disconnectedClientsNickname, async (nickname, _) =>
+        {
             await BroadcastMessageAsync($"{nickname} left the chat");
-        }
+        });
     }
 
     public async Task KickClient(string id)

@@ -1,3 +1,4 @@
+global using System.Collections.Concurrent;
 global using CommandsLib;
 global using ConfigsLib;
 global using System;

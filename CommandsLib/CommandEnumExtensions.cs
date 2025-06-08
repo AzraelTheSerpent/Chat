@@ -26,7 +26,7 @@ public static class CommandEnumExtensions
 
     public static Commands GetCommand(this string input)
     {
-        foreach (Commands command in Enum.GetValues(typeof(Commands)))
+        foreach (var command in Enum.GetValues<Commands>())
         {
             var attributes = typeof(Commands).GetMember(command.ToString())[0].GetCustomAttributes(false);
 
