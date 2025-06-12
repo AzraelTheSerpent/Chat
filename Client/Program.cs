@@ -50,9 +50,7 @@ internal static class Program
             Thread.Sleep(1000);
         }
 
-        _client?.Writer.Dispose();
-        _client?.Reader.Dispose();
-        _client?.TcpClient.Dispose();
+        _client.Dispose();
 
         Environment.Exit(exitCode);
     }

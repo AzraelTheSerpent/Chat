@@ -7,7 +7,7 @@ using ConfigsLib;
 
 namespace Client;
 
-internal class Client
+internal class Client : IDisposable
 {
     private readonly string _nickname;
     internal readonly TcpClient TcpClient = new();
@@ -120,5 +120,12 @@ internal class Client
     #else
         Console.WriteLine(ex.Message);
     #endif
+    }
+
+    public void Dispose()
+    {
+        TcpClient.Dispose();
+        Reader.Dispose();
+        Writer.Dispose();
     }
 }
