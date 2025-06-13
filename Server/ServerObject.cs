@@ -6,11 +6,18 @@ internal class ServerObject : IDisposable
     private readonly List<ClientObject> _clients = [];
     private readonly TcpListener _listener;
 
+    public string PrivateKey { get; }
+    public string PublicKey { get; }
+
     public ServerObject(string pathToConfigFile)
     {
         var port = GetPortFromConfig(pathToConfigFile);
 
         _listener = new(IPAddress.Any, port);
+
+        using RSACryptoServiceProvider rsa = new();
+        PrivateKey = rsa.ToXmlString(true);
+        PublicKey = rsa.ToXmlString(false);
     }
 
     internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
@@ -19,7 +26,7 @@ internal class ServerObject : IDisposable
     {
         foreach (var client in _clients)
         {
-            client.Writer.WriteLine(Commands.Stop.GetCommandValue());
+            client.WriteAsync(client.Encrypt(Commands.Stop.GetCommandValue())).Wait();
             client.Dispose();
         }
 
@@ -108,7 +115,7 @@ internal class ServerObject : IDisposable
 
         return builder.ToString();
     }
-
+    
     protected internal async Task BroadcastMessageAsync(string message, string? id = null)
     {
         var disconnectedClients = new ConcurrentBag<ClientObject>();
@@ -117,7 +124,7 @@ internal class ServerObject : IDisposable
             try
             {
                 if (client.Id != id)
-                    await client.Writer.WriteLineAsync(message);
+                    await client.WriteAsync(client.Encrypt(message));
             }
             catch
             {
@@ -142,7 +149,7 @@ internal class ServerObject : IDisposable
         var client = _clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
-        await client.Writer.WriteLineAsync(Commands.Kick.GetCommandValue());
+        await client.WriteAsync(client.Encrypt(Commands.Kick.GetCommandValue()));
 
         RemoveConnection(client);
     }
@@ -152,9 +159,9 @@ internal class ServerObject : IDisposable
         var client = _clients.FirstOrDefault(c => c.Id == id);
         if (client?.Ip is null ||
             client.Nickname is null) return;
-
         _bannedClients.Add(client.Ip, client.Nickname);
-        await client.Writer.WriteLineAsync(Commands.Ban.GetCommandValue());
+        
+        await client.WriteAsync(client.Encrypt(Commands.Ban.GetCommandValue()));
 
         RemoveConnection(client);
     }

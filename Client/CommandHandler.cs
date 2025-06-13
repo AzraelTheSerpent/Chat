@@ -25,7 +25,7 @@ internal static class CommandHandler
                 break;
             case Commands.CommandsList:
                 StringBuilder builder = new();
-                foreach (Commands commands in Enum.GetValues(typeof(Commands)))
+                foreach (var commands in Enum.GetValues<Commands>())
                     builder.Append('|' + commands.GetCommandValue() + "\t\t" + commands.GetCommandAnnotation() + '\n');
                 Console.WriteLine(builder.ToString());
                 break;

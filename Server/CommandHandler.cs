@@ -19,13 +19,13 @@ internal class CommandHandler(object sender)
         switch (command)
         {
             case Commands.Exit:
-                await client.Writer.WriteLineAsync(command.GetCommandValue());
+                await client.WriteAsync(client.Encrypt(command.GetCommandValue()));
                 throw new();
             case Commands.ClientList:
-                await client.Writer.WriteLineAsync(client.GetServerClientsList());
+                await client.WriteAsync(client.Encrypt(client.GetServerClientsList()));
                 break;
             case Commands.CommandsList:
-                await client.Writer.WriteLineAsync(command.GetCommandValue());
+                await client.WriteAsync(client.Encrypt(command.GetCommandValue()));
                 break;
         }
     }
@@ -63,7 +63,7 @@ internal class CommandHandler(object sender)
     private static void HandleCommandsListCommandAsync()
     {
         StringBuilder builder = new();
-        foreach (Commands commands in Enum.GetValues(typeof(Commands)))
+        foreach (var commands in Enum.GetValues<Commands>())
             builder.Append('|' + commands.GetCommandValue() + "\t\t" + commands.GetCommandAnnotation() + '\n');
         Console.WriteLine(builder.ToString());
     }

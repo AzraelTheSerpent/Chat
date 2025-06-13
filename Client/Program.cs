@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Client;
 
@@ -7,14 +8,15 @@ internal static class Program
 {
     private static Client? _client;
 
-    public static void Main()
+    public static async Task Main()
     {
         try
         {
         #if DEBUG
             Console.WriteLine("DEBUG MODE");
         #endif
-            _client = new("Client.config.json", true);
+            _client = new("Client.config.json");
+            await _client.Start();
         }
         catch (Exception ex)
         {
@@ -50,8 +52,8 @@ internal static class Program
             Thread.Sleep(1000);
         }
 
-        _client.Dispose();
-
+        _client?.Dispose();
+        
         Environment.Exit(exitCode);
     }
 }
