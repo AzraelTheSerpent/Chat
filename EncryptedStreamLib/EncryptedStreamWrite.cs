@@ -15,18 +15,10 @@ public partial class EncryptedStream
         await stream.WriteAsync(lengthBytes.AsMemory(0, 4));
         await stream.WriteAsync(data.AsMemory(0, 0 + dataLength));
     }
-    
+
     public async Task EncryptedWriteAsync(string data, string publicKey)
-    {
-        var dataBytes = Encrypt(data, publicKey);
-        var dataLength = dataBytes.Length;
-        var lengthBytes = BitConverter.GetBytes(dataLength);
-        
-        if (BitConverter.IsLittleEndian) Array.Reverse(lengthBytes);
-        
-        await stream.WriteAsync(lengthBytes.AsMemory(0, 4));
-        await stream.WriteAsync(dataBytes.AsMemory(0, 0 + dataLength));
-    }
+        => await WriteAsync(Encrypt(data, publicKey));
+    
 
     private byte[] Encrypt(string? data, string key)
     {

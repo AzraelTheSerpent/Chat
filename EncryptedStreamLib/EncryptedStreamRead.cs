@@ -27,24 +27,8 @@ public partial class EncryptedStream(NetworkStream stream, RSAEncryptionPadding 
     }
     
     public async Task<string> DecryptedReadAsync(string privateKey)
-    {
-        var lengthBuffer = new byte[4];
-        await stream.ReadExactlyAsync(lengthBuffer, 0, 4);
-        
-        if (BitConverter.IsLittleEndian) Array.Reverse(lengthBuffer);
-        
-        var messageLength = BitConverter.ToInt32(lengthBuffer, 0);
-
-        var responseData = new byte[messageLength];
-        var bytesRead = 0;
-        while (bytesRead < messageLength)
-            bytesRead += await stream.ReadAsync(responseData.AsMemory(
-                bytesRead,
-                messageLength - bytesRead)
-            );
-
-        return Decrypt(responseData, privateKey);
-    }
+       => Decrypt(await ReadAsync(), privateKey);
+    
 
     private string Decrypt(byte[] data, string key)
     {
