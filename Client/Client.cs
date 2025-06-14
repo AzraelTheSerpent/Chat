@@ -37,7 +37,7 @@ internal class Client : IDisposable
             throw new("Name can't take the values: null, “Admin”, empty string or consist only of spaces.");
 
         _tcpClient.Connect(host, port);
-        _stream = new(_tcpClient.GetStream(), RSAEncryptionPadding.Pkcs1);
+        _stream = new(_tcpClient.GetStream(), RSAEncryptionPadding.OaepSHA1);
     }
 
     private async Task HandShake()

@@ -21,7 +21,7 @@ internal class ClientObject : IDisposable
         if (client.Client.RemoteEndPoint is IPEndPoint endPoint)
             Ip = endPoint.Address;
 
-        Stream = new(client.GetStream(), RSAEncryptionPadding.Pkcs1);
+        Stream = new(client.GetStream(), RSAEncryptionPadding.OaepSHA1);
     }
 
     internal string Id { get; } = Guid.NewGuid().ToString();

@@ -12,7 +12,7 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Chat</AssemblyName>
-        <FileVersion>4.1.0.0</FileVersion>
+        <FileVersion>4.1.0.1</FileVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">
