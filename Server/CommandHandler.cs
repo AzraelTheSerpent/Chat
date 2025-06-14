@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Server;
+﻿namespace Server;
 
 [SuppressMessage("ReSharper", "SwitchStatementMissingSomeEnumCasesNoDefault")]
 internal class CommandHandler(object sender)
@@ -16,16 +14,17 @@ internal class CommandHandler(object sender)
 
     private static async Task HandleClientCommand(Commands command, ClientObject client)
     {
+        var stream = client.Stream;
         switch (command)
         {
             case Commands.Exit:
-                await client.WriteAsync(client.Encrypt(command.GetCommandValue()));
+                await stream.EncryptedWriteAsync(command.GetCommandValue()!, client.ClientKey);
                 throw new();
             case Commands.ClientList:
-                await client.WriteAsync(client.Encrypt(client.GetServerClientsList()));
+                await stream.EncryptedWriteAsync(client.GetServerClientsList(), client.ClientKey);
                 break;
             case Commands.CommandsList:
-                await client.WriteAsync(client.Encrypt(command.GetCommandValue()));
+                await stream.EncryptedWriteAsync(command.GetCommandValue()!, client.ClientKey);
                 break;
         }
     }

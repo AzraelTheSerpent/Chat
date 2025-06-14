@@ -26,7 +26,7 @@ internal class ServerObject : IDisposable
     {
         foreach (var client in _clients)
         {
-            client.WriteAsync(client.Encrypt(Commands.Stop.GetCommandValue())).Wait();
+            client.Stream.EncryptedWriteAsync(Commands.Stop.GetCommandValue()!, client.ClientKey).Wait();
             client.Dispose();
         }
 
@@ -124,7 +124,7 @@ internal class ServerObject : IDisposable
             try
             {
                 if (client.Id != id)
-                    await client.WriteAsync(client.Encrypt(message));
+                    await client.Stream.EncryptedWriteAsync(message, client.ClientKey);
             }
             catch
             {
@@ -149,7 +149,8 @@ internal class ServerObject : IDisposable
         var client = _clients.FirstOrDefault(c => c.Id == id);
         if (client is null) return;
 
-        await client.WriteAsync(client.Encrypt(Commands.Kick.GetCommandValue()));
+        var stream = client.Stream;
+        await stream.EncryptedWriteAsync(Commands.Kick.GetCommandValue()!, client.ClientKey);
 
         RemoveConnection(client);
     }
@@ -161,7 +162,9 @@ internal class ServerObject : IDisposable
             client.Nickname is null) return;
         _bannedClients.Add(client.Ip, client.Nickname);
         
-        await client.WriteAsync(client.Encrypt(Commands.Ban.GetCommandValue()));
+        var stream = client.Stream;
+        
+        await stream.EncryptedWriteAsync(Commands.Ban.GetCommandValue()!, client.ClientKey);
 
         RemoveConnection(client);
     }

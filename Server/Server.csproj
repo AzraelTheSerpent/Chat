@@ -3,6 +3,7 @@
     <ItemGroup>
         <ProjectReference Include="..\CommandsLib\CommandsLib.csproj"/>
         <ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj"/>
+        <ProjectReference Include="..\EncryptedStreamLib\EncryptedStreamLib.csproj" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -11,7 +12,7 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Server</AssemblyName>
-        <FileVersion>4.0.0.0</FileVersion>
+        <FileVersion>4.1.0.0</FileVersion>
     </PropertyGroup>
 
     <ItemGroup Condition="'$(Configuration)' == 'Debug'">

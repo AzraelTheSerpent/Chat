@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandsLib.Tests", "Comman
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigsLib.Tests", "ConfigsLib.Tests\ConfigsLib.Tests.csproj", "{13638042-3300-41C7-92AA-8E7A9E58FD6C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EncryptedStreamLib", "EncryptedStreamLib\EncryptedStreamLib.csproj", "{EC4FC3D4-15DE-44A1-9631-FC10C3C63E17}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13638042-3300-41C7-92AA-8E7A9E58FD6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC4FC3D4-15DE-44A1-9631-FC10C3C63E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC4FC3D4-15DE-44A1-9631-FC10C3C63E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC4FC3D4-15DE-44A1-9631-FC10C3C63E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC4FC3D4-15DE-44A1-9631-FC10C3C63E17}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
