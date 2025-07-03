@@ -53,7 +53,7 @@ internal static class Program
         }
 
         _client?.Dispose();
-        
+
         Environment.Exit(exitCode);
     }
 }

@@ -13,11 +13,11 @@ namespace Client;
 internal class Client : IDisposable
 {
     private readonly string _nickname;
-    private readonly TcpClient _tcpClient = new();
-    private readonly EncryptedStream _stream;
 
     private readonly string _privateKey;
     private readonly string _publicKey;
+    private readonly EncryptedStream _stream;
+    private readonly TcpClient _tcpClient = new();
     private string _serverKey = null!;
 
     public Client(string configPath)
@@ -40,6 +40,12 @@ internal class Client : IDisposable
         _stream = new(_tcpClient.GetStream(), RSAEncryptionPadding.OaepSHA1);
     }
 
+    public void Dispose()
+    {
+        _tcpClient.Dispose();
+        _stream.Dispose();
+    }
+
     private async Task HandShake()
     {
         await _stream.WriteAsync(Encoding.UTF8.GetBytes(_nickname));
@@ -47,7 +53,7 @@ internal class Client : IDisposable
 
         _serverKey = Encoding.UTF8.GetString(await _stream.ReadAsync());
     }
-    
+
     private static ClientInfo GetClientInfoFromConfig(string configPath)
     {
         using FileStream fs = new(configPath, FileMode.OpenOrCreate);
@@ -96,7 +102,7 @@ internal class Client : IDisposable
         {
             while (true)
             {
-               var message = await _stream.DecryptedReadAsync(_privateKey);
+                var message = await _stream.DecryptedReadAsync(_privateKey);
 
                 if (string.IsNullOrEmpty(message)) continue;
 
@@ -133,11 +139,5 @@ internal class Client : IDisposable
     #else
         Console.WriteLine(ex.Message);
     #endif
-    }
-
-    public void Dispose()
-    {
-        _tcpClient.Dispose();
-        _stream.Dispose();
     }
 }

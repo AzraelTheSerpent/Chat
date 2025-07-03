@@ -6,9 +6,6 @@ internal class ServerObject : IDisposable
     private readonly List<ClientObject> _clients = [];
     private readonly TcpListener _listener;
 
-    public string PrivateKey { get; }
-    public string PublicKey { get; }
-
     public ServerObject(string pathToConfigFile)
     {
         var port = GetPortFromConfig(pathToConfigFile);
@@ -19,6 +16,9 @@ internal class ServerObject : IDisposable
         PrivateKey = rsa.ToXmlString(true);
         PublicKey = rsa.ToXmlString(false);
     }
+
+    public string PrivateKey { get; }
+    public string PublicKey { get; }
 
     internal Dictionary<IPAddress, string> BannedClient => new(_bannedClients);
 
@@ -105,9 +105,9 @@ internal class ServerObject : IDisposable
     internal string GetClientsList()
     {
         StringBuilder builder = new();
-        var clients = 
-            from client in _clients 
-            orderby client.Nickname, client.Id 
+        var clients =
+            from client in _clients
+            orderby client.Nickname, client.Id
             select client;
 
         foreach (var c in clients)
@@ -115,7 +115,7 @@ internal class ServerObject : IDisposable
 
         return builder.ToString();
     }
-    
+
     protected internal async Task BroadcastMessageAsync(string message, string? id = null)
     {
         var disconnectedClients = new ConcurrentBag<ClientObject>();
@@ -131,17 +131,15 @@ internal class ServerObject : IDisposable
                 disconnectedClients.Add(client);
             }
         });
-        
-        var disconnectedClientsNickname = 
+
+        var disconnectedClientsNickname =
             from client in disconnectedClients select client.Nickname;
-        
+
         foreach (var client in disconnectedClients)
             RemoveConnection(client);
-            
-        await Parallel.ForEachAsync(disconnectedClientsNickname, async (nickname, _) =>
-        {
-            await BroadcastMessageAsync($"{nickname} left the chat");
-        });
+
+        await Parallel.ForEachAsync(disconnectedClientsNickname,
+            async (nickname, _) => { await BroadcastMessageAsync($"{nickname} left the chat"); });
     }
 
     public async Task KickClient(string id)
@@ -161,9 +159,9 @@ internal class ServerObject : IDisposable
         if (client?.Ip is null ||
             client.Nickname is null) return;
         _bannedClients.Add(client.Ip, client.Nickname);
-        
+
         var stream = client.Stream;
-        
+
         await stream.EncryptedWriteAsync(Commands.Ban.GetCommandValue()!, client.ClientKey);
 
         RemoveConnection(client);

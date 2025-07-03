@@ -3,7 +3,7 @@
     <ItemGroup>
         <ProjectReference Include="..\CommandsLib\CommandsLib.csproj"/>
         <ProjectReference Include="..\ConfigsLib\ConfigsLib.csproj"/>
-        <ProjectReference Include="..\EncryptedStreamLib\EncryptedStreamLib.csproj" />
+        <ProjectReference Include="..\EncryptedStreamLib\EncryptedStreamLib.csproj"/>
     </ItemGroup>
 
     <PropertyGroup>

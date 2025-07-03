@@ -6,13 +6,15 @@ namespace EncryptedStreamLib;
 
 public partial class EncryptedStream(NetworkStream stream, RSAEncryptionPadding rsaEncryptionPadding) : IDisposable
 {
+    public void Dispose() => stream.Dispose();
+
     public async Task<byte[]> ReadAsync()
     {
         var lengthBuffer = new byte[4];
         await stream.ReadExactlyAsync(lengthBuffer, 0, 4);
-        
+
         if (BitConverter.IsLittleEndian) Array.Reverse(lengthBuffer);
-        
+
         var messageLength = BitConverter.ToInt32(lengthBuffer, 0);
 
         var responseData = new byte[messageLength];
@@ -25,10 +27,10 @@ public partial class EncryptedStream(NetworkStream stream, RSAEncryptionPadding 
 
         return responseData;
     }
-    
+
     public async Task<string> DecryptedReadAsync(string privateKey)
-       => Decrypt(await ReadAsync(), privateKey);
-    
+        => Decrypt(await ReadAsync(), privateKey);
+
 
     private string Decrypt(byte[] data, string key)
     {
@@ -37,6 +39,4 @@ public partial class EncryptedStream(NetworkStream stream, RSAEncryptionPadding 
         var decryptedData = rsa.Decrypt(data, rsaEncryptionPadding);
         return Encoding.UTF8.GetString(decryptedData);
     }
-
-    public void Dispose() => stream.Dispose();
 }

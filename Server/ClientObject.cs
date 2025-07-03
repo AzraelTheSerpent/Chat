@@ -4,10 +4,9 @@ internal class ClientObject : IDisposable
 {
     private readonly TcpClient _client;
     private readonly CommandHandler _handler;
-    private readonly ServerObject _server; 
-    
+    private readonly ServerObject _server;
+
     private bool _clientIsLive;
-    public string ClientKey { get; private set; } = null!;
 
     public ClientObject(TcpClient client, ServerObject server)
     {
@@ -23,6 +22,8 @@ internal class ClientObject : IDisposable
 
         Stream = new(client.GetStream(), RSAEncryptionPadding.OaepSHA1);
     }
+
+    public string ClientKey { get; private set; } = null!;
 
     internal string Id { get; } = Guid.NewGuid().ToString();
     internal string? Nickname { get; private set; }
